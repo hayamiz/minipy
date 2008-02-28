@@ -1,0 +1,26 @@
+-*- coding: utf-8 -*-
+
+== mini-pythonの説明 ==
+
+このディレクトリに含まれるプログラムは, 東京大学工学部電気系Bコース演
+習で, id:hayamiz, id:gomi-box により開発されたものである.
+
+see also: http://www.logos.ic.i.u-tokyo.ac.jp/lectures/enshu2007/
+
+== build & run ==
+
+実装には2系統あり, 構文木を直接実行するもの(以下インタプリタ)と, 仮想マ
+シン命令列へと変換してから実行するもの(以下VM)である.
+
+=== インタプリタ ==
+
+$ make minipy
+$ ./minipy <実行するプログラム>
+
+=== VM ===
+
+$ make vmpy
+$ ./vmpy <実行するプログラム>
+
+また, ./vmpy <実行するプログラム> -d とすることで, 仮想マシン命令列を
+ダンプすることができる.
