@@ -1,0 +1,125 @@
+
+#fixtures
+    py_val_t py_int_val;
+    py_val_t py_char_val;
+    py_val_t py_str_val;
+    py_val_t py_flt_val;
+#end
+
+#testcase int_create ()
+    stack<Stack_trace_entry> bt; // dummy stack trace
+    SrcPos pos; // dummy position
+
+    this->py_int_val = Py_val::mk_int(0);
+    CPPUNIT_ASSERT(Py_val::is_int(this->py_int_val));
+    CPPUNIT_ASSERT_EQUAL(0, Py_val::py_val_int(py_int_val, bt, pos));
+
+    // Max : 1073741823 = 2^30 - 1
+    this->py_int_val = Py_val::mk_int(1073741823);
+    CPPUNIT_ASSERT(Py_val::is_int(this->py_int_val));
+    CPPUNIT_ASSERT_EQUAL(1073741823, Py_val::py_val_int(py_int_val, bt, pos));
+
+    // Min : -1073741824 = - 2^30
+    this->py_int_val = Py_val::mk_int(-1073741824);
+    CPPUNIT_ASSERT(Py_val::is_int(this->py_int_val));
+    CPPUNIT_ASSERT_EQUAL(-1073741824, Py_val::py_val_int(py_int_val, bt, pos));
+#end
+
+#testcase char_create ()
+    stack<Stack_trace_entry> bt; // dummy stack trace
+    SrcPos pos; // dummy position
+
+    this->py_char_val = Py_val::mk_char('A');
+    CPPUNIT_ASSERT(Py_val::is_char(this->py_char_val));
+    CPPUNIT_ASSERT_EQUAL((int)'A', Py_val::py_val_char(py_char_val, bt, pos));
+
+    this->py_char_val = Py_val::mk_char('z');
+    CPPUNIT_ASSERT(Py_val::is_char(this->py_char_val));
+    CPPUNIT_ASSERT_EQUAL((int)'z', Py_val::py_val_char(py_char_val, bt, pos));
+
+    // Max : 127 = 2^7 - 1
+    this->py_char_val = Py_val::mk_char(127);
+    CPPUNIT_ASSERT(Py_val::is_char(this->py_char_val));
+    CPPUNIT_ASSERT_EQUAL(127, Py_val::py_val_char(py_char_val, bt, pos));
+
+    // Min : -128 = - 2^7
+    this->py_char_val = Py_val::mk_char(-128);
+    CPPUNIT_ASSERT(Py_val::is_char(this->py_char_val));
+    CPPUNIT_ASSERT_EQUAL(-128, Py_val::py_val_char(py_char_val, bt, pos));
+#end
+
+#testcase float_create ()
+    stack<Stack_trace_entry> bt; // dummy stack trace
+    SrcPos pos; // dummy position
+
+    this->py_flt_val = Py_val::mk_float(0.0);
+    CPPUNIT_ASSERT(Py_val::is_float(this->py_flt_val));
+    CPPUNIT_ASSERT_EQUAL(0.0, Py_val::py_val_float(py_flt_val, bt, pos));
+
+    this->py_flt_val = Py_val::mk_float(12345.6);
+    CPPUNIT_ASSERT(Py_val::is_float(this->py_flt_val));
+    CPPUNIT_ASSERT_EQUAL(12345.6, Py_val::py_val_float(py_flt_val, bt, pos));
+#end
+
+#testcase str_create ()
+    stack<Stack_trace_entry> bt; // dummy stack trace
+    SrcPos pos; // dummy position
+
+    this->py_str_val = Py_val::mk_string("this is a string");
+    CPPUNIT_ASSERT(Py_val::is_string(py_str_val));
+    CPPUNIT_ASSERT(py_str_val->u.s->compare("this is a string") == 0);
+    CPPUNIT_ASSERT(py_str_val->u.s->compare("This is a string") != 0);
+
+    this->py_str_val = Py_val::mk_string("a");
+    CPPUNIT_ASSERT(!Py_val::is_string(py_str_val));
+    CPPUNIT_ASSERT(Py_val::is_char(py_str_val));
+    CPPUNIT_ASSERT('a' == Py_val::py_val_char(py_str_val, bt, pos));
+#end
+
+#testcase tuple_create ()
+    stack<Stack_trace_entry> bt; // dummy stack trace
+    SrcPos pos; // dummy position
+
+    py_val_t vint, vchar, vstr, vtup;
+    py_val_t tuple;
+
+    vint = Py_val::mk_int(123);
+    vchar = Py_val::mk_char('$');
+    vstr = Py_val::mk_string("You are the prince of tennis.");
+    vtup = Py_val::mk_tuple(vector<py_val_t>());
+
+    CPPUNIT_ASSERT(Py_val::is_tuple(vtup));
+
+    py_val_t tuplevals[] = {vint, vchar, vstr, vtup};
+    tuple = Py_val::mk_tuple(vector<py_val_t>(tuplevals, tuplevals + 4));
+
+    CPPUNIT_ASSERT(Py_val::is_tuple(tuple));
+    CPPUNIT_ASSERT_EQUAL(vint, tuple->u.l->at(0));
+    CPPUNIT_ASSERT_EQUAL(vchar, tuple->u.l->at(1));
+    CPPUNIT_ASSERT_EQUAL(vstr, tuple->u.l->at(2));
+    CPPUNIT_ASSERT_EQUAL(vtup, tuple->u.l->at(3));
+#end
+
+#testcase list_create ()
+    stack<Stack_trace_entry> bt; // dummy stack trace
+    SrcPos pos; // dummy position
+
+    py_val_t vint, vchar, vstr, vtup;
+    py_val_t tuple;
+
+    vint = Py_val::mk_int(123);
+    vchar = Py_val::mk_char('$');
+    vstr = Py_val::mk_string("You are the prince of tennis.");
+    vtup = Py_val::mk_tuple(vector<py_val_t>());
+
+    CPPUNIT_ASSERT(Py_val::is_tuple(vtup));
+
+    py_val_t tuplevals[] = {vint, vchar, vstr, vtup};
+    tuple = Py_val::mk_list(vector<py_val_t>(tuplevals, tuplevals + 4));
+
+    CPPUNIT_ASSERT(Py_val::is_list(tuple));
+    CPPUNIT_ASSERT_EQUAL(vint, tuple->u.l->at(0));
+    CPPUNIT_ASSERT_EQUAL(vchar, tuple->u.l->at(1));
+    CPPUNIT_ASSERT_EQUAL(vstr, tuple->u.l->at(2));
+    CPPUNIT_ASSERT_EQUAL(vtup, tuple->u.l->at(3));
+#end

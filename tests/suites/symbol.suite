@@ -1,0 +1,11 @@
+
+#testcase case1 ()
+    symbol_t s1 = Symbol::get("hoge");
+    symbol_t s2 = Symbol::get("hoge");
+
+    CPPUNIT_ASSERT(s1 == s2);
+    s1 = Symbol::get("fuga");
+    CPPUNIT_ASSERT(s1 != s2);
+    CPPUNIT_ASSERT((*s1).compare("fuga") == 0);
+#end
+

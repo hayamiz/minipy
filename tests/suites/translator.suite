@@ -1,0 +1,30 @@
+
+#require vminsns symbol
+
+#fixtures
+LocalTable * table;
+#end
+
+
+#testcase local_table ()
+
+table = new LocalTable();
+
+CPPUNIT_ASSERT_EQUAL(-1, table->look_var("hoge"));
+
+table->add_var("foo");
+CPPUNIT_ASSERT_EQUAL(0, table->look_var("foo"));
+CPPUNIT_ASSERT_EQUAL(-1, table->look_var("bar"));
+CPPUNIT_ASSERT_EQUAL(-1, table->look_var("hoge"));
+
+table->add_var("bar");
+CPPUNIT_ASSERT_EQUAL(1, table->look_var("foo"));
+CPPUNIT_ASSERT_EQUAL(0, table->look_var("bar"));
+CPPUNIT_ASSERT_EQUAL(-1, table->look_var("baz"));
+
+table->add_var("baz");
+CPPUNIT_ASSERT_EQUAL(2, table->look_var("foo"));
+CPPUNIT_ASSERT_EQUAL(1, table->look_var("bar"));
+CPPUNIT_ASSERT_EQUAL(0, table->look_var("baz"));
+
+#end

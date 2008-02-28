@@ -1,0 +1,39 @@
+
+#requires pyvalues symbol env
+
+#finxtures
+vector<py_val_t> ls0, ls1, ls2, ls3, ls4, ls5, ls6, ls7, ls8, ls9, ls10, ls11, ls12, ls13, ls14, ls15, ls16, ls17, ls18, ls19, ls20, ls21, ls22, ls23, ls24, ls25, ls26, ls27, ls28, ls29, ls30, ls31, ls32, ls33, ls34, ls35, ls36, ls37, ls38, ls39, ls40, ls41, ls42, ls43, ls44, ls45, ls46, ls47, ls48, ls49, ls50, ls51, ls52, ls53, ls54, ls55, ls56, ls57, ls58, ls59, ls60, ls61, ls62, ls63, ls64, ls65, ls66, ls67, ls68, ls69, ls70, ls71, ls72, ls73, ls74, ls75, ls76, ls77, ls78, ls79, ls80, ls81, ls82, ls83, ls84, ls85, ls86, ls87, ls88, ls89, ls90, ls91, ls92, ls93, ls94, ls95, ls96, ls97, ls98, ls99;
+
+py_val_t pyval0, pyval1, pyval2, pyval3, pyval4, pyval5, pyval6, pyval7, pyval8, pyval9, pyval10, pyval11, pyval12, pyval13, pyval14, pyval15, pyval16, pyval17, pyval18, pyval19, pyval20, pyval21, pyval22, pyval23, pyval24, pyval25, pyval26, pyval27, pyval28, pyval29, pyval30, pyval31, pyval32, pyval33, pyval34, pyval35, pyval36, pyval37, pyval38, pyval39, pyval40, pyval41, pyval42, pyval43, pyval44, pyval45, pyval46, pyval47, pyval48, pyval49, pyval50, pyval51, pyval52, pyval53, pyval54, pyval55, pyval56, pyval57, pyval58, pyval59, pyval60, pyval61, pyval62, pyval63, pyval64, pyval65, pyval66, pyval67, pyval68, pyval69, pyval70, pyval71, pyval72, pyval73, pyval74, pyval75, pyval76, pyval77, pyval78, pyval79, pyval80, pyval81, pyval82, pyval83, pyval84, pyval85, pyval86, pyval87, pyval88, pyval89, pyval90, pyval91, pyval92, pyval93, pyval94, pyval95, pyval96, pyval97, pyval98, pyval99, pyval100;
+
+Env genv; stack<Stack_trace_entry> bt; SrcPos p;
+#end
+
+#testcase eq_tuple ()
+
+#define pb(var) push_back(var)
+
+ls0.pb(mkint(0));
+pyval0 = mktuple(ls0);
+
+ls1.pb(mkint(0));
+pyval1 = mktuple(ls1);
+
+ls2.pb(pyval0); ls2.pb(pyval1);
+CPPUNIT_ASSERT(mkint(1) == native::eq_tuple(genv, bt, p, ls2));
+CPPUNIT_ASSERT(mkint(0) == native::gt_tuple(genv, bt, p, ls2));
+CPPUNIT_ASSERT(mkint(0) == native::lt(genv, bt, p, ls2));
+CPPUNIT_ASSERT(mkint(1) == native::ge(genv, bt, p, ls2));
+CPPUNIT_ASSERT(mkint(1) == native::le(genv, bt, p, ls2));
+
+ls3.pb(mkint(1));
+pyval2 = mktuple(ls3);
+
+ls4.pb(pyval0); ls4.pb(pyval2);
+CPPUNIT_ASSERT(mkint(0) == native::eq_tuple(genv, bt, p, ls4));
+CPPUNIT_ASSERT(mkint(0) == native::gt_tuple(genv, bt, p, ls4));
+CPPUNIT_ASSERT(mkint(1) == native::lt(genv, bt, p, ls4));
+CPPUNIT_ASSERT(mkint(0) == native::ge(genv, bt, p, ls4));
+CPPUNIT_ASSERT(mkint(1) == native::le(genv, bt, p, ls4));
+
+#end

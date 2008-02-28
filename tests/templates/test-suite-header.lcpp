@@ -1,0 +1,32 @@
+// -*- coding: utf-8 -*-
+
+#ifndef <% @var suite-name %>test_HPP
+#define <% @var suite-name %>test_HPP
+
+#include <cppunit/TestCase.h>
+#include <cppunit/extensions/HelperMacros.h>
+#include "./../<% @var suite-name %>.hpp"
+#include <cppunit/TestSuite.h>
+#include <cppunit/TestCaller.h>
+
+/* テストクラスは TestCase を継承する。 */
+class <% @var suite-name %>Test : public CppUnit::TestFixture
+{
+private:
+    CPPUNIT_TEST_SUITE( <% @var suite-name %>Test );
+<% @loop test-cases %>
+    CPPUNIT_TEST( test_<% @var name %> );<% @endloop %>
+
+    CPPUNIT_TEST_SUITE_END();
+
+    // fixtures
+<% @var fixtures %>
+
+public:
+    /* テストは test_XXX という名前にする。 */
+<% @loop test-cases %>
+    void test_<% @var name %>();<% @endloop %>
+
+};
+
+#endif

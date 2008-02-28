@@ -1,0 +1,15 @@
+<% @loop test-suites %>
+#include "<% @var name %>Test.hpp"
+<% @endloop %>
+#include <cppunit/ui/text/TestRunner.h>
+
+int main(int argc, char* argv[])
+{
+    /* TestRunner を生成して run() を実行する。 */
+    CppUnit::TextUi::TestRunner runner;
+    /* ここに今後テストを追加していく。 */
+<% @loop test-suites %>
+    runner.addTest(<% @var name %>Test::suite());
+<% @endloop %>
+    return runner.run() ? 0 : 1;
+}

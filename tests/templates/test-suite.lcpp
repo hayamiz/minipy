@@ -1,0 +1,7 @@
+#include "<% @var suite-name %>Test.hpp"
+
+<% @loop test-cases %>
+void <% @var suite-name %>Test::test_<% @var name %>(){
+<% @var code %>
+}
+<% @endloop %>
