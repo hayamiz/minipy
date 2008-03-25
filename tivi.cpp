@@ -41,7 +41,7 @@ Tivi::Tivi(){
 
 void Tivi::load_file(const string & filename){
     Parser parser(filename);
-    vector<Stm> stms = parser.file_input();
+    vector<Stm*> stms = parser.file_input();
 
     this->trans.compile_file(stms, this->vmasm, this->genv);
 }

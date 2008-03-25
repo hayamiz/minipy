@@ -43,22 +43,22 @@ private:
     Env * genv;
 
     void insns_val_infix_operator(const Expr & expr, vm_assembler & vmasm, LocalEnv * lenv);
-    void scan_defun_local_var(const vector<Stm> & stms, LocalEnv * lenv);
+    void scan_defun_local_var(const vector<Stm*> & stms, LocalEnv * lenv);
 
     bool numeric_expr(const Expr & expr);
     void insns_val(const Expr & expr, vm_assembler & vmasm, LocalEnv * lenv);
     void insns_push(const Expr & expr, vm_assembler & vmasm, LocalEnv * lenv);
     void insns_stm(const Stm & stm, vm_assembler & vmasm, LocalEnv * lenv);
-    void insns_stms(const vector<Stm> & stm, vm_assembler & vmasm, LocalEnv * lenv);
+    void insns_stms(const vector<Stm*> & stm, vm_assembler & vmasm, LocalEnv * lenv);
 
-    void insns_loop_stms(const vector<Stm> & stm, vm_assembler & vmasm, int start_addr, vector<int> & break_addrs, LocalEnv * lenv);
+    void insns_loop_stms(const vector<Stm*> & stm, vm_assembler & vmasm, int start_addr, vector<int> & break_addrs, LocalEnv * lenv);
     
     void compile_error(const string & msg, const SrcPos & pos);
 
 public:
     Translator();
 
-    void compile_file(const vector<Stm> & stms, vm_assembler & vmasm, Env & genv);
+    void compile_file(const vector<Stm*> & stms, vm_assembler & vmasm, Env & genv);
 };
 
 #endif

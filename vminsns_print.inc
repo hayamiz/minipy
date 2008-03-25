@@ -10,211 +10,211 @@
         switch((*itr).type){
 
         case VM_NOP:
-            printf("%4d: VM_NOP()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_NOP() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_IMMVAL:
-            printf("%4d: VM_IMMVAL( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_IMMVAL( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_IMMVAL_NUM:
-            printf("%4d: VM_IMMVAL_NUM( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_IMMVAL_NUM( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_IMMVAL_CHAR:
-            printf("%4d: VM_IMMVAL_CHAR( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_IMMVAL_CHAR( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_PUSH:
-            printf("%4d: VM_PUSH()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_PUSH() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_POP:
-            printf("%4d: VM_POP()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_POP() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_PUSHI:
-            printf("%4d: VM_PUSHI( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_PUSHI( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_PUSHI_NUM:
-            printf("%4d: VM_PUSHI_NUM( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_PUSHI_NUM( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_PUSHI_CHAR:
-            printf("%4d: VM_PUSHI_CHAR( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_PUSHI_CHAR( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LREF:
-            printf("%4d: VM_LREF( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LREF( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LREF_PUSH:
-            printf("%4d: VM_LREF_PUSH( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LREF_PUSH( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LREF_LOOK:
-            printf("%4d: VM_LREF_LOOK( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LREF_LOOK( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LSET:
-            printf("%4d: VM_LSET( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LSET( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LINC:
-            printf("%4d: VM_LINC( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LINC( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LDEFUN:
-            printf("%4d: VM_LDEFUN( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LDEFUN( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_GREF:
-            printf("%4d: VM_GREF( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_GREF( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_GREF_PUSH:
-            printf("%4d: VM_GREF_PUSH( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_GREF_PUSH( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_GSET:
-            printf("%4d: VM_GSET( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_GSET( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_GINC:
-            printf("%4d: VM_GINC( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_GINC( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_GDEFUN:
-            printf("%4d: VM_GDEFUN( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_GDEFUN( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_ADD2:
-            printf("%4d: VM_ADD2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_ADD2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LREF_ADD2:
-            printf("%4d: VM_LREF_ADD2( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LREF_ADD2( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_ADD2_NUM:
-            printf("%4d: VM_ADD2_NUM()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_ADD2_NUM() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_ADD2_STR:
-            printf("%4d: VM_ADD2_STR()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_ADD2_STR() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_SUB2:
-            printf("%4d: VM_SUB2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_SUB2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LREF_SUB2:
-            printf("%4d: VM_LREF_SUB2( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LREF_SUB2( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_SUB2_NUM:
-            printf("%4d: VM_SUB2_NUM()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_SUB2_NUM() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_MUL2:
-            printf("%4d: VM_MUL2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_MUL2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LREF_MUL2:
-            printf("%4d: VM_LREF_MUL2( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LREF_MUL2( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_MUL2_NUM:
-            printf("%4d: VM_MUL2_NUM()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_MUL2_NUM() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_DIV2:
-            printf("%4d: VM_DIV2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_DIV2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LREF_DIV2:
-            printf("%4d: VM_LREF_DIV2( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LREF_DIV2( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_DIV2_NUM:
-            printf("%4d: VM_DIV2_NUM()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_DIV2_NUM() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_AND2:
-            printf("%4d: VM_AND2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_AND2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_OR2:
-            printf("%4d: VM_OR2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_OR2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_NOT:
-            printf("%4d: VM_NOT()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_NOT() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_BITAND2:
-            printf("%4d: VM_BITAND2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_BITAND2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_BITOR2:
-            printf("%4d: VM_BITOR2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_BITOR2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_BITXOR2:
-            printf("%4d: VM_BITXOR2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_BITXOR2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_BITINV:
-            printf("%4d: VM_BITINV()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_BITINV() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_RSHIFT2:
-            printf("%4d: VM_RSHIFT2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_RSHIFT2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LSHIFT2:
-            printf("%4d: VM_LSHIFT2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LSHIFT2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_EQL2:
-            printf("%4d: VM_EQL2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_EQL2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_NEQL2:
-            printf("%4d: VM_NEQL2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_NEQL2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_NUMLT2:
-            printf("%4d: VM_NUMLT2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_NUMLT2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_NUMLEQ2:
-            printf("%4d: VM_NUMLEQ2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_NUMLEQ2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_NUMGT2:
-            printf("%4d: VM_NUMGT2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_NUMGT2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_NUMGEQ2:
-            printf("%4d: VM_NUMGEQ2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_NUMGEQ2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_IS2:
-            printf("%4d: VM_IS2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_IS2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_IN2:
-            printf("%4d: VM_IN2()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_IN2() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_GOTO:
-            printf("%4d: VM_GOTO( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_GOTO( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_GOTOIF:
-            printf("%4d: VM_GOTOIF( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_GOTOIF( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_GOTOIFNOT:
-            printf("%4d: VM_GOTOIFNOT( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_GOTOIFNOT( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_SELF_CALL:
-            printf("%4d: VM_SELF_CALL( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_SELF_CALL( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_VREF_CALL:
-            printf("%4d: VM_VREF_CALL()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_VREF_CALL() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_GREF_CALL:
-            printf("%4d: VM_GREF_CALL( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_GREF_CALL( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LREF_CALL:
-            printf("%4d: VM_LREF_CALL( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LREF_CALL( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_PUSH_ENV:
-            printf("%4d: VM_PUSH_ENV()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_PUSH_ENV() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_RET:
-            printf("%4d: VM_RET()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_RET() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_END:
-            printf("%4d: VM_END()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_END() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_MKLIST:
-            printf("%4d: VM_MKLIST( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_MKLIST( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_MKTUPLE:
-            printf("%4d: VM_MKTUPLE( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_MKTUPLE( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_MKDICT:
-            printf("%4d: VM_MKDICT( %s )\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_MKDICT( %s ) --%s@%d\n", i, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str() , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_LEN:
-            printf("%4d: VM_LEN()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_LEN() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_GETITEM:
-            printf("%4d: VM_GETITEM()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_GETITEM() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_SETITEM:
-            printf("%4d: VM_SETITEM()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_SETITEM() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_DELITEM:
-            printf("%4d: VM_DELITEM()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_DELITEM() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_PRINT:
-            printf("%4d: VM_PRINT()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_PRINT() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         case VM_PRINTSTR:
-            printf("%4d: VM_PRINTSTR()\n", i /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf("%4d: VM_PRINTSTR() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
         }
     }

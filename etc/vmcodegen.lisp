@@ -131,7 +131,7 @@ dispatchtable[VM_<% @var name %>] = && VM_<% @var name %>_CASE,<% @endloop %>
         switch((*itr).type){
 <% @loop insns %>
         case VM_<% @var name %>:
-            printf(\"%4d: VM_<% @var name %>(<% @if arity %> %s <% @endif %>)\\n\", i<% @if arity %>, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str()<% @endif %> /*, (*itr).p->filename.c_str(), (*itr).p->line_no */);
+            printf(\"%4d: VM_<% @var name %>(<% @if arity %> %s <% @endif %>) --%s@%d\\n\", i<% @if arity %>, operand_str((*itr).type, (py_val_t)(*itr).operand, genv).c_str()<% @endif %> , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;<% @endloop %>
         }
     }
