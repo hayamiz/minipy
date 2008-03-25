@@ -31,13 +31,13 @@ py_val_t Eval::expr(Expr & e, Env & lenv, Env & genv,stack<Stack_trace_entry> & 
     case expr_kind_display_tuple:/* タプルを作る ( a, b, c,... ) */
     {
         Py_tuple * newtuple = new Py_tuple((unsigned)e.u.disp->size());
-        vector<Expr>::iterator it;
-        for (it=(*e.u.disp).begin(); it< (*e.u.disp).end(); it++){            newtuple->push_back(this->expr(*it,lenv,genv,bt));
+        vector<Expr*>::iterator it;
+        for (it=(*e.u.disp).begin(); it< (*e.u.disp).end(); it++){            newtuple->push_back(this->expr(**it,lenv,genv,bt));
     }
     return mknewtuple(newtuple);
 /*
 vector<py_val_t> py_vec;
-        vector<Expr>::iterator it;
+        vector<Expr*>::iterator it;
         for (it=(*e.u.disp).begin(); it< (*e.u.disp).end(); it++){
             py_vec.push_back(this->expr(*it,lenv,genv,bt));
         }
@@ -49,9 +49,9 @@ vector<py_val_t> py_vec;
     case expr_kind_display_list:/* リストを作る [ a, b, c,...] */
     {
         vector<py_val_t> py_vec;
-        vector<Expr>::iterator it;
+        vector<Expr*>::iterator it;
         for (it=(*e.u.disp).begin(); it< (*e.u.disp).end(); it++){
-            py_vec.push_back(this->expr(*it,lenv,genv,bt));
+            py_vec.push_back(this->expr(**it,lenv,genv,bt));
         }
         return  Py_val::mk_list(py_vec);
     }
@@ -60,11 +60,11 @@ vector<py_val_t> py_vec;
         // see parser.cpp line 276
     {
         py_val_t newdict = mknewdict();
-        vector<Expr>::iterator it;
+        vector<Expr*>::iterator it;
         for (it=(*e.u.disp).begin(); it< (*e.u.disp).end(); it++){
             newdict->u.nd->set(
-                this->expr(it->u.op->args[0], lenv,genv,bt)
-                ,this->expr(it->u.op->args[1], lenv,genv,bt)
+                this->expr(*(*it)->u.op->args[0], lenv,genv,bt)
+                ,this->expr(*(*it)->u.op->args[1], lenv,genv,bt)
                 ,bt,e.pos);
         }
         return newdict;
@@ -79,21 +79,21 @@ vector<py_val_t> py_vec;
         switch(e.u.op->kind){
         case TOK_KW_AND:
         {
-            py_val_t a =expr(e.u.op->args[0],lenv,genv,bt);
+            py_val_t a = expr(*(e.u.op->args[0]),lenv,genv,bt);
             if(Py_val::is_false(a)){
                 return a;
             }else{
-                return expr(e.u.op->args[1],lenv,genv,bt);
+                return expr(*(e.u.op->args[1]),lenv,genv,bt);
             }
         }
         break;
         case TOK_KW_OR:
         {
-            py_val_t a =expr(e.u.op->args[0],lenv,genv,bt);
+            py_val_t a = expr(*(e.u.op->args[0]),lenv,genv,bt);
             if(!(Py_val::is_false(a))){
                 return a;
             }else{
-                return expr(e.u.op->args[1],lenv,genv,bt);
+                return expr(*(e.u.op->args[1]),lenv,genv,bt);
             }
         }
         break;
@@ -101,7 +101,7 @@ vector<py_val_t> py_vec;
         {
             py_val_t f = genv.lookup_sym(operator_fun_name(e.u.op->kind,e.u.op->fix,bt,e.pos));
             py_val_t args[(e.u.op->args).size()+1];
-            vector<Expr>::iterator it;
+            vector<Expr*>::iterator it;
 
             if (f == py_val_not_found){
                 runtime_error(bt, e.pos, "function '" + *operator_fun_name(e.u.op->kind,e.u.op->fix,bt,e.pos) + "' is not found.");
@@ -117,7 +117,7 @@ vector<py_val_t> py_vec;
             }
 
             for (int i=0; i<(int)(e.u.op->args).size(); i++){
-                args[i] = expr((e.u.op->args)[i],lenv,genv,bt);
+                args[i] = expr(*((e.u.op->args)[i]),lenv,genv,bt);
             }
             args[(int)(e.u.op->args).size()]= NULL;
             py_val_t ret = this->expr_function_call(f,args,e,lenv,genv,bt);
@@ -139,8 +139,8 @@ vector<py_val_t> py_vec;
         //大域環境を呼ぶ。
         py_val_t f =genv.lookup_sym(Symbol::get("getitem"));
         py_val_t args[3];
-        args[0] = expr((*e.u.sub)[0], lenv,genv,bt); //添字
-        args[1] = expr((*e.u.sub)[1], lenv,genv,bt); //引数
+        args[0] = expr(*((*e.u.sub)[0]), lenv,genv,bt); //添字
+        args[1] = expr(*((*e.u.sub)[1]), lenv,genv,bt); //引数
         args[2] = NULL;
         return this->expr_function_call(f,args,e,lenv,genv,bt);
     }
@@ -150,20 +150,20 @@ vector<py_val_t> py_vec;
         // 関数名の決定
         py_val_t f;  // 関数の名前
         py_val_t args_attref = py_val_not_found;  
-        if(e.u.call->f.kind == expr_kind_attref){
+        if(e.u.call->f->kind == expr_kind_attref){
             //see text(6) P15
-            py_val_t py =lenv.lookup_sym((e.u.call->f).u.atr->f);
+            py_val_t py =lenv.lookup_sym((e.u.call->f)->u.atr->f);
             if(py == py_val_not_found || py == py_val_global){
-                py = genv.lookup_sym((e.u.call->f).u.atr->f);
+                py = genv.lookup_sym(e.u.call->f->u.atr->f);
                 if(py == py_val_not_found){
                     runtime_error(bt,e.pos," no function name : "
-                                  + *(e.u.call->f).u.atr->f);
+                                  + *(e.u.call->f)->u.atr->f);
                 }
             }
-            args_attref =expr(e.u.call->f.u.atr->a, lenv,genv,bt);
+            args_attref = expr(*e.u.call->f->u.atr->a, lenv,genv,bt);
             f = py;
         }else{
-            f = expr(e.u.call->f, lenv,genv,bt);
+            f = expr(*e.u.call->f, lenv,genv,bt);
         }
 
         if (f->type == py_type_ifun){
@@ -185,7 +185,7 @@ vector<py_val_t> py_vec;
             args[0] =args_attref;
         }
         for(int i=0; i< (int)e.u.call->args.size(); i++){
-            args[i+num] =expr((e.u.call->args)[i],lenv,genv,bt);
+            args[i+num] =expr(*((e.u.call->args)[i]),lenv,genv,bt);
         }
         args[(e.u.call->args).size()+num] = NULL;
         // 関数呼び出し。
@@ -197,13 +197,13 @@ vector<py_val_t> py_vec;
     case expr_kind_list:
     {
         Py_tuple* newtuple = new Py_tuple((unsigned)e.u.disp->size());
-        vector<Expr>::iterator it;
+        vector<Expr*>::iterator it;
         for (it=(*e.u.disp).begin(); it< (*e.u.disp).end(); it++){
-            newtuple->push_back(this->expr(*it,lenv,genv,bt));
+            newtuple->push_back(this->expr(**it,lenv,genv,bt));
         }
         return mknewtuple(newtuple);
 //         vector<py_val_t> py_vec;
-//         vector<Expr>::iterator it;
+//         vector<Expr*>::iterator it;
 //         for (it=(*e.u.list).begin(); it< (*e.u.list).end(); it++){
 //             py_vec.push_back(this->expr(*it,lenv,genv,bt));
 //         }
@@ -226,11 +226,11 @@ py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,stack<Stack_trace_entry> & b
         ret = py_val_next;
         break;
     case stm_kind_assignment:/* 代入.  a = x, a[x] = b, etc. */
-        switch(s.u.a->target.kind){ // 左辺が変数かその他か
+        switch(s.u.a->target->kind){ // 左辺が変数かその他か
         case  expr_kind_var:
         {
-            py_val_t v = this->expr(s.u.a->val,lenv,genv,bt);
-            symbol_t x = s.u.a->target.u.var;
+            py_val_t v = this->expr(*s.u.a->val,lenv,genv,bt);
+            symbol_t x = s.u.a->target->u.var;
             if(genv.is_global(x)){
                 genv.set_sym(x,v);
             }else {
@@ -244,16 +244,16 @@ py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,stack<Stack_trace_entry> & b
             //大域環境を呼ぶ。
             py_val_t f = genv.lookup_sym(Symbol::get("setitem"));
             py_val_t args[4];
-            py_val_t container = expr((*s.u.a->target.u.sub)[0],lenv,genv,bt);
+            py_val_t container = expr(*((*s.u.a->target->u.sub)[0]),lenv,genv,bt);
             if (container == py_val_not_found){
                 runtime_error(bt, s.pos, "variable not found : "
-                              + *(*s.u.a->target.u.sub)[0].u.var);
+                              + *((*s.u.a->target->u.sub)[0])->u.var);
             }
             args[0] = container; //コンテナ
-            args[1] =expr((*s.u.a->target.u.sub)[1],lenv,genv,bt); //添字
-            args[2] = expr(s.u.a->val, lenv,genv,bt); //右辺
+            args[1] = expr(*((*s.u.a->target->u.sub)[1]),lenv,genv,bt); //添字
+            args[2] = expr(*s.u.a->val, lenv,genv,bt); //右辺
             args[3] =NULL;
-            this->expr_function_call(f,args,s.u.a->val,lenv,genv,bt);
+            this->expr_function_call(f, args, *s.u.a->val, lenv, genv, bt);
             ret =  py_val_next;
         }
         break;
@@ -268,8 +268,8 @@ py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,stack<Stack_trace_entry> & b
         //大域環境を呼ぶ。
         py_val_t f =genv.lookup_sym(Symbol::get("delitem"));
         py_val_t args[3];
-        args[0] = expr((*(s.u.e)->u.sub)[0], lenv,genv,bt); //添字
-        args[1] = expr((*(s.u.e)->u.sub)[1], lenv,genv,bt); //引数
+        args[0] = expr(*(*(s.u.e)->u.sub)[0], lenv,genv,bt); //添字
+        args[1] = expr(*(*(s.u.e)->u.sub)[1], lenv,genv,bt); //引数
         args[2]=NULL;
         this->expr_function_call(f,args,*s.u.e,lenv,genv,bt);
         ret = py_val_next;
@@ -302,7 +302,7 @@ py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,stack<Stack_trace_entry> & b
     break;
     case stm_kind_global:/* global */
     {
-        symbol_t str =s.u.a->target.u.var;
+        symbol_t str = s.u.a->target->u.var;
         if(genv.is_global(str)){
             genv.set_global(str);
         }else{
@@ -314,10 +314,11 @@ py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,stack<Stack_trace_entry> & b
     case stm_kind_if:/* if文 */
     {
         ret = py_val_next;
-        vector<StmIfBranch>::iterator it;
-        for (it=(*s.u.i).begin(); it< (*s.u.i).end(); it++){
-            if(it->elsep || !(Py_val::is_false(expr(it->e,lenv,genv,bt) ))){
-                ret = this->stmt_vec(it->s,lenv,genv,bt);
+        vector<StmIfBranch*>::iterator it;
+        for (it = (*s.u.i).begin(); it< (*s.u.i).end(); it++){
+            if((*it)->elsep
+               || !(Py_val::is_false(expr(*(*it)->e,lenv,genv,bt) ))){
+                ret = this->stmt_vec((*it)->s, lenv, genv, bt);
                 break;
             }
         }
@@ -327,7 +328,7 @@ py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,stack<Stack_trace_entry> & b
     {
         ret = py_val_next;
         bool flag = true;
-        while(!(Py_val::is_false(expr(s.u.w->e,lenv,genv,bt)))
+        while(!(Py_val::is_false(expr(*s.u.w->e,lenv,genv,bt)))
               && flag ){
             py_val_t tmp = this->stmt_vec(s.u.w->b,lenv,genv,bt);
             switch((int)tmp){
@@ -350,24 +351,24 @@ py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,stack<Stack_trace_entry> & b
     {
         ret= py_val_next;
         
-        if(s.u.f->e.kind == expr_kind_call
-           && s.u.f->e.u.call->f.u.var == Symbol::get("range")){
+        if(s.u.f->e->kind == expr_kind_call
+           && s.u.f->e->u.call->f->u.var == Symbol::get("range")){
             int start =0;
             int limit = 0;
             int inc = 1;
-            switch(s.u.f->e.u.call->args.size()){
+            switch(s.u.f->e->u.call->args.size()){
             case 1:
                 limit = getint(
-                    this->expr(s.u.f->e.u.call->args[0],lenv,genv,bt));
+                    this->expr(*s.u.f->e->u.call->args[0],lenv,genv,bt));
                 break;
             case 2:
-                start = getint(this->expr(s.u.f->e.u.call->args[0],lenv,genv,bt));
-                limit = getint(this->expr(s.u.f->e.u.call->args[1],lenv,genv,bt));
+                start = getint(this->expr(*s.u.f->e->u.call->args[0],lenv,genv,bt));
+                limit = getint(this->expr(*s.u.f->e->u.call->args[1],lenv,genv,bt));
                 break;
             case 3:
-                start = getint(this->expr(s.u.f->e.u.call->args[0],lenv,genv,bt));
-                limit = getint(this->expr(s.u.f->e.u.call->args[1],lenv,genv,bt));
-                inc = getint(this->expr(s.u.f->e.u.call->args[2],lenv,genv,bt));
+                start = getint(this->expr(*s.u.f->e->u.call->args[0],lenv,genv,bt));
+                limit = getint(this->expr(*s.u.f->e->u.call->args[1],lenv,genv,bt));
+                inc = getint(this->expr(*s.u.f->e->u.call->args[2],lenv,genv,bt));
                 break;
             default:
                 runtime_error(bt, s.pos, "SyntaxError: invalid syntax");
@@ -392,7 +393,7 @@ py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,stack<Stack_trace_entry> & b
                 }
             }
         }else{
-            py_val_t tmp = this->expr(s.u.f->e,lenv,genv,bt);
+            py_val_t tmp = this->expr(*s.u.f->e, lenv, genv, bt);
             switch (tmp->type){
             case py_type_string:
             {
@@ -452,7 +453,7 @@ py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,stack<Stack_trace_entry> & b
     break;
     case stm_kind_fundef:/* def文．これも実は文の一種 */
         lenv.set_sym(s.u.d->f,
-                 Py_val::mk_ifun(s.u.d->f,s.u.d->ps,s.u.d->b));
+                 Py_val::mk_ifun(s.u.d->f, s.u.d->ps, s.u.d->b));
         ret = py_val_next;
         break;
     default:
@@ -463,17 +464,17 @@ py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,stack<Stack_trace_entry> & b
 }
 
 
-py_val_t Eval::file_input(vector<Stm> & u, Env & genv,stack<Stack_trace_entry> & bt){
-    vector<Stm>::iterator it;
+py_val_t Eval::file_input(vector<Stm*> & u, Env & genv,stack<Stack_trace_entry> & bt){
+    vector<Stm*>::iterator it;
     py_val_t tmp = (py_val_t)py_val_none; // ?
     for (it=u.begin(); it< u.end(); it++){
-        tmp =this->stmt(*it,genv,genv,bt);
+        tmp =this->stmt(**it,genv,genv,bt);
         if( tmp == py_val_break){
-            runtime_error(bt, it->pos, "SyntaxError: 'continue' not properly in loop");
+            runtime_error(bt, (*it)->pos, "SyntaxError: 'continue' not properly in loop");
         }else if(tmp == py_val_continue ){
-            runtime_error(bt, it->pos, "SyntaxError: 'break' not properly in loop");
+            runtime_error(bt, (*it)->pos, "SyntaxError: 'break' not properly in loop");
         }else if(tmp != py_val_next){
-            runtime_error(bt, it->pos, "SyntaxError: 'return' not properly in loop");
+            runtime_error(bt, (*it)->pos, "SyntaxError: 'return' not properly in loop");
         } 
     }
     return tmp;
@@ -608,10 +609,10 @@ symbol_t Eval::operator_fun_name(token_kind_t k, fix_kind_t fix,stack<Stack_trac
     return Symbol::get(ret);
 }
 
-py_val_t Eval::stmt_vec(vector<Stm> s, Env & lenv, Env & genv, stack<Stack_trace_entry> & bt){
-    vector<Stm>::iterator it;
+py_val_t Eval::stmt_vec(vector<Stm*> s, Env & lenv, Env & genv, stack<Stack_trace_entry> & bt){
+    vector<Stm*>::iterator it;
     for (it=s.begin(); it< s.end(); it++){
-        py_val_t tmp =this->stmt(*it,lenv,genv,bt);
+        py_val_t tmp =this->stmt(**it,lenv,genv,bt);
         if(tmp != py_val_next){
             return tmp;
         }

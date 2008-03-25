@@ -425,8 +425,8 @@ void Py_val::to_str(ostream & ss, py_val_t pyval, stack<Stack_trace_entry> & bt,
         break;
     case py_type_ifun:
         ss << "<function " << pyval->u.i->name << " at "
-           << pyval->u.i->b[0].pos.filename << ":"
-           << pyval->u.i->b[0].pos.line_no << ">";
+           << pyval->u.i->b[0]->pos.filename << ":"
+           << pyval->u.i->b[0]->pos.line_no << ">";
         break;
     case py_type_vm_ifun:
         ss << "<function " << pyval->u.vm_i->name << " at "
@@ -570,8 +570,8 @@ void Py_val::print(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos &
         break;
     case py_type_ifun:
         printf("<function %s at %s:%d>", pyval->u.i->name->c_str()
-               , pyval->u.i->b[0].pos.filename.c_str()
-               , pyval->u.i->b[0].pos.line_no);
+               , pyval->u.i->b[0]->pos.filename.c_str()
+               , pyval->u.i->b[0]->pos.line_no);
         break;
     case py_type_vm_ifun:
         printf("<function %s at %s:%d>", pyval->u.vm_i->name->c_str()
@@ -918,7 +918,7 @@ py_val_t Py_val::mk_string(const string& s){
 }
 
 /* Python関数を作る */
-py_val_t Py_val::mk_ifun(const symbol_t name, vector<symbol_t> ps, vector<Stm> & b){
+py_val_t Py_val::mk_ifun(const symbol_t name, vector<symbol_t> ps, vector<Stm*> & b){
     py_val_t ret = Py_val::alloc_boxed(py_type_ifun);
     Py_ifun * ifun = new Py_ifun();
     ifun->name = name;

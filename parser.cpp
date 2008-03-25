@@ -8,7 +8,7 @@ Parser::Parser(string filename)
 Parser::~Parser(){
 }
 
-vector<Stm> Parser::file_input(){
+vector<Stm*> Parser::file_input(){
     return this->parse_file_input();
 }
 
@@ -68,10 +68,10 @@ void Parser::error(){
 }
 
 // or_expr := xor_expr ( '|' xor_test )* のような式の結果をExprにまとめる
-Expr Parser::left_infix_operator_list_helper(queue<Expr> & expr_list
+Expr * Parser::left_infix_operator_list_helper(queue<Expr*> & expr_list
                                      , queue<SrcPos> & pos_list
                                      , queue<token_kind_t> & opr_list){
-    Expr ret = expr_list.front();
+    Expr * ret = expr_list.front();
     expr_list.pop();
     while(!opr_list.empty() && !expr_list.empty()){
         ret = Expr::make_infix_operator(opr_list.front()
@@ -85,14 +85,14 @@ Expr Parser::left_infix_operator_list_helper(queue<Expr> & expr_list
 }
 
 // アトム
-Expr Parser::parse_atom(){
+Expr * Parser::parse_atom(){
     // identifier | literal 
     // | list_display | dict_display 
     // | "(" expression_list_with_comma ")"
 
-    Expr ret;
+    Expr * ret;
     SrcPos pos;
-    vector<Expr> expr_list;
+    vector<Expr*> expr_list;
     switch (this->cur_token){
     case TOK_ID:   // identifer
         ret = Expr::make_var(this->tok.get_cur_token_str_val(), get_pos());
@@ -154,8 +154,8 @@ Expr Parser::parse_atom(){
 // これは何だろう <- タプルの中とかに出現する式のリスト
 // tail_commapは, リストの最後がcommaで終わってたらtrue
 // そうじゃければfalse
-vector<Expr> Parser::parse_expression_list_with_comma(bool & tail_commap){
-    vector<Expr> ret;
+vector<Expr*> Parser::parse_expression_list_with_comma(bool & tail_commap){
+    vector<Expr*> ret;
     // [ expression ( "," expression )* [","] ]
     while(true){
         switch (this->cur_token){
@@ -188,8 +188,8 @@ finish:
 }
 
 // リテラル
-Expr Parser::parse_literal(){
-    Expr expr;
+Expr * Parser::parse_literal(){
+    Expr * expr;
     // stringliteral | integer | floatnumber
     switch (this->cur_token){
     case TOK_LITERAL_STRING:   // 文字列リテラル
@@ -215,11 +215,11 @@ Expr Parser::parse_literal(){
 }
 
 // リスト式
-Expr Parser::parse_list_display(){
+Expr * Parser::parse_list_display(){
     // "[" expression_list_with_comma "]"
     this->eat(TOK_LBRACKET);// [
     bool tail_commap;
-    Expr ret = Expr::make_display_list
+    Expr * ret = Expr::make_display_list
         (this->parse_expression_list_with_comma(tail_commap)
          , get_pos());
     this->eat(TOK_RBRACKET);// ]
@@ -228,10 +228,10 @@ Expr Parser::parse_list_display(){
 }
 
 // 辞書式
-Expr Parser::parse_dict_display(){
+Expr * Parser::parse_dict_display(){
     // "{" key_datum_list "}"
     this->eat(TOK_LBRACE);// {
-    Expr ret = Expr::make_display_dict(this->parse_key_datum_list()
+    Expr * ret = Expr::make_display_dict(this->parse_key_datum_list()
                                        , get_pos());
     this->eat(TOK_RBRACE);// }
 
@@ -245,9 +245,9 @@ Expr Parser::parse_dict_display(){
 // # この , はあってもなくても，
 // # 意味は変わらない
 // #
-vector<Expr> Parser::parse_key_datum_list(){
+vector<Expr*> Parser::parse_key_datum_list(){
     // [ key_datum ("," key_datum)* ]
-    vector<Expr> expr_list;
+    vector<Expr*> expr_list;
 
     while(true){
         switch (this->cur_token){
@@ -279,12 +279,12 @@ finish:
 
 // 名前と値
 // infix_operatorとして表現するお
-Expr Parser::parse_key_datum(){
+Expr * Parser::parse_key_datum(){
     // expression ":" expression
     SrcPos pos = get_pos();
-    Expr key = this->parse_expression();
+    Expr * key = this->parse_expression();
     this->eat(TOK_COLON);
-    Expr value = this->parse_expression();
+    Expr * value = this->parse_expression();
 
     return Expr::make_infix_operator(TOK_COLON, key, value, pos);
 }
@@ -302,14 +302,14 @@ Expr Parser::parse_key_datum(){
 // # - atom(x, y, z) は関数呼び出し．構文木では call 
 // #
 // 以上文法定義より
-Expr Parser::parse_primary(){
+Expr * Parser::parse_primary(){
     //atom ( "." identifier 
     // | "[" expression_list_with_comma "]" 
     // | "(" expression_list_with_comma ")" )*
 
-    Expr ret = this->parse_atom();
+    Expr * ret = this->parse_atom();
     SrcPos pos;
-    vector<Expr> expr_list;
+    vector<Expr*> expr_list;
 
     while(this->cur_token == TOK_PERIOD
           || this->cur_token ==TOK_LBRACKET
@@ -357,7 +357,7 @@ Expr Parser::parse_primary(){
 }
 
 // 単項演算子
-Expr Parser::parse_u_expr(){
+Expr * Parser::parse_u_expr(){
     // primary | "-" u_expr | "+" u_expr | "~" u_expr
 
     token_kind_t opr;
@@ -392,8 +392,8 @@ Expr Parser::parse_u_expr(){
 
 ////////// 多項演算子
 //
-Expr Parser::parse_m_expr(){
-    queue<Expr> expr_list;
+Expr * Parser::parse_m_expr(){
+    queue<Expr*> expr_list;
     queue<SrcPos> pos_list;
     queue<token_kind_t> opr_list;
     
@@ -414,8 +414,8 @@ Expr Parser::parse_m_expr(){
 }
 
 // 
-Expr Parser::parse_a_expr(){
-    queue<Expr> expr_list;
+Expr * Parser::parse_a_expr(){
+    queue<Expr*> expr_list;
     queue<SrcPos> pos_list;
     queue<token_kind_t> opr_list;
     
@@ -435,8 +435,8 @@ Expr Parser::parse_a_expr(){
 }
 
 // 
-Expr Parser::parse_shift_expr(){
-    queue<Expr> expr_list;
+Expr * Parser::parse_shift_expr(){
+    queue<Expr*> expr_list;
     queue<SrcPos> pos_list;
     queue<token_kind_t> opr_list;
     
@@ -457,8 +457,8 @@ Expr Parser::parse_shift_expr(){
 }
 
 // 
-Expr Parser::parse_and_expr(){
-    queue<Expr> expr_list;
+Expr * Parser::parse_and_expr(){
+    queue<Expr*> expr_list;
     queue<SrcPos> pos_list;
     queue<token_kind_t> opr_list;
     
@@ -478,8 +478,8 @@ Expr Parser::parse_and_expr(){
 }
 
 // 
-Expr Parser::parse_xor_expr(){
-    queue<Expr> expr_list;
+Expr * Parser::parse_xor_expr(){
+    queue<Expr*> expr_list;
     queue<SrcPos> pos_list;
     queue<token_kind_t> opr_list;
 
@@ -497,9 +497,9 @@ Expr Parser::parse_xor_expr(){
 }
 
 // 
-Expr Parser::parse_or_expr(){
+Expr * Parser::parse_or_expr(){
     //xor_expr ( "|" xor_expr )*
-    queue<Expr> expr_list;
+    queue<Expr*> expr_list;
     queue<SrcPos> pos_list;
     queue<token_kind_t> opr_list;
     
@@ -517,9 +517,9 @@ Expr Parser::parse_or_expr(){
 }
 
 // あとでやる
-Expr Parser::parse_comparison(){
+Expr * Parser::parse_comparison(){
     //or_expr [ comp_operator or_expr ]
-    Expr ret = this->parse_or_expr();
+    Expr * ret = this->parse_or_expr();
     token_kind_t opr;
     switch (this->cur_token){
     case TOK_LT:   // <
@@ -579,7 +579,7 @@ token_kind_t Parser::parse_comp_operator(){
 }
 
 // 
-Expr Parser::parse_not_test(){
+Expr * Parser::parse_not_test(){
     // comparison | "not" not_test
     switch (this->cur_token){
     case TOK_ID:   // identifer
@@ -608,13 +608,13 @@ Expr Parser::parse_not_test(){
 
     // dummy return
     // never reaches here.
-    return Expr();
+    return new Expr();
 }
 
 // 
-Expr Parser::parse_and_test(){
+Expr * Parser::parse_and_test(){
     // not_test ( "and" not_test )*
-    queue<Expr> expr_list;
+    queue<Expr*> expr_list;
     queue<SrcPos> pos_list;
     queue<token_kind_t> opr_list;
 
@@ -631,9 +631,9 @@ Expr Parser::parse_and_test(){
 }
 
 // 
-Expr Parser::parse_or_test(){
+Expr * Parser::parse_or_test(){
     // and_test ( "or" and_test )*
-    queue<Expr> expr_list;
+    queue<Expr*> expr_list;
     queue<SrcPos> pos_list;
     queue<token_kind_t> opr_list;
 
@@ -651,25 +651,25 @@ Expr Parser::parse_or_test(){
 }
 
 // 
-Expr Parser::parse_expression(){
+Expr * Parser::parse_expression(){
     // or_test
     return this->parse_or_test();
 }
 
 // 
-Stm Parser::parse_expression_stmt(){
+Stm * Parser::parse_expression_stmt(){
     // expression
     return Stm::make_expression(this->parse_expression()
                                 , this->get_pos());
 }
 
 // obsolete
-Expr Parser::parse_subscription(){
+Expr * Parser::parse_subscription(){
     // primary "[" expression_list_with_comma "]"
-    Expr expr;
+    Expr * expr;
     expr = this->parse_primary();
-    if (expr.kind != expr_kind_subscript
-        && expr.kind != expr_kind_var) {
+    if (expr->kind != expr_kind_subscript
+        && expr->kind != expr_kind_var) {
         this->error();
     }
     return expr;
@@ -681,11 +681,11 @@ Expr Parser::parse_subscription(){
 }
 
 // 
-Stm Parser::parse_return_stmt(){
+Stm * Parser::parse_return_stmt(){
     // "return" [expression_list_with_comma]
     this->eat(TOK_KW_RETURN);
     bool tail_commap;
-    vector<Expr> ret;
+    vector<Expr*> ret;
     
     switch (this->cur_token){
     case TOK_ID:   // identifer
@@ -700,7 +700,7 @@ Stm Parser::parse_return_stmt(){
     case TOK_TILDE:   // ~
     case TOK_KW_NOT: // not
 
-        // parse_expression_list_with_comma は, vector<Expr> 型
+        // parse_expression_list_with_comma は, vector<Expr*> 型
         // Python では, return foo, bar, baz のように書くことができる
         // この場合, 戻り値は (foo, bar, baz) というタプルになる
 
@@ -724,40 +724,40 @@ Stm Parser::parse_return_stmt(){
     }
     // dummy return
     // never reaches here.
-    return Stm();
+    return new Stm();
 }
 
 // 
-Stm Parser::parse_pass_stmt(){
+Stm * Parser::parse_pass_stmt(){
     // "pass"
     this->eat(TOK_KW_PASS);
     return Stm::make_pass(this->get_pos());
 }
 
 // 
-Stm Parser::parse_del_stmt(){
+Stm * Parser::parse_del_stmt(){
     // "del" subscription
     this->eat(TOK_KW_DEL);
     return  Stm::make_del(this->parse_subscription(), this->get_pos());
 }
 
 // 
-Stm Parser::parse_break_stmt(){
+Stm * Parser::parse_break_stmt(){
     // "break"
     this->eat(TOK_KW_BREAK);
     return Stm::make_break(this->get_pos());
 }
 
 // 
-Stm Parser::parse_continue_stmt(){
+Stm * Parser::parse_continue_stmt(){
     // "continue"
     this->eat(TOK_KW_CONTINUE);
     return Stm::make_continue(this->get_pos());
 }
 
 // 
-Stm Parser::parse_global_stmt(){
-    Stm stm;
+Stm * Parser::parse_global_stmt(){
+    Stm * stm;
     // "global" identifier
     this->eat(TOK_KW_GLOBAL);
     stm = Stm::make_global(this->tok.get_cur_token_str_val()
@@ -767,10 +767,10 @@ Stm Parser::parse_global_stmt(){
 }
 
 // 
-Stm Parser::parse_print_stmt(){
+Stm * Parser::parse_print_stmt(){
     // "print" expression_list_with_comma
     bool tail_commap;
-    vector<Expr> ret;
+    vector<Expr*> ret;
     this->eat(TOK_KW_PRINT);
 
     ret = this->parse_expression_list_with_comma(tail_commap);
@@ -784,12 +784,12 @@ Stm Parser::parse_print_stmt(){
 }
 
 // 
-vector<Stm> Parser::parse_suite(){
+vector<Stm*> Parser::parse_suite(){
     // NEWLINE INDENT statement+ DEDENT
     this->eat(TOK_NEWLINE);
     this->eat(TOK_INDENT);
 
-    vector<Stm> stm_list;
+    vector<Stm*> stm_list;
     bool loop = true;
     while(loop){
         switch (this->cur_token){
@@ -828,7 +828,7 @@ vector<Stm> Parser::parse_suite(){
 }
 
 // 
-Stm Parser::parse_statement(){
+Stm * Parser::parse_statement(){
     // expression_stmt NEWLINE
     //  | assignment_stmt NEWLINE
     //  | pass_stmt NEWLINE
@@ -843,8 +843,8 @@ Stm Parser::parse_statement(){
     //  | for_stmt
     //  | funcdef
 
-    Expr expr;
-    Stm stm;
+    Expr * expr;
+    Stm * stm;
     SrcPos cur_pos = this->get_pos();
     
     switch (this->cur_token){
@@ -871,8 +871,8 @@ Stm Parser::parse_statement(){
             this->eat();
             break;
         case TOK_EQ:
-            if (expr.kind == expr_kind_subscript
-                || expr.kind == expr_kind_var) {
+            if (expr->kind == expr_kind_subscript
+                || expr->kind == expr_kind_var) {
                 this->eat();
                 stm = Stm::make_assignment(expr
                                            ,this->parse_expression()
@@ -943,65 +943,65 @@ Stm Parser::parse_statement(){
 }
 
 // 
-Stm Parser::parse_if_stmt(){
+Stm * Parser::parse_if_stmt(){
     // "if" expression ":" suite
     //  ( "elif" expression ":" suite )*
     //  ["else" ":" suite]
-    vector<StmIfBranch> ifBranch;
+    vector<StmIfBranch*> ifBranch;
     
-    Expr e;
-    vector<Stm> s;
+    Expr * e;
+    vector<Stm*> s;
     SrcPos cur_pos = this->get_pos();
     
     this->eat(TOK_KW_IF);
     e = this->parse_expression();
     this->eat(TOK_COLON);
     s = this->parse_suite();
-    ifBranch.push_back(StmIfBranch(e, s));
+    ifBranch.push_back(new StmIfBranch(e, s));
     
     while(this->cur_token == TOK_KW_ELIF){
             this->eat();
             e = this->parse_expression();
             this->eat(TOK_COLON);
             s = this->parse_suite();
-            ifBranch.push_back(StmIfBranch(e, s));
+            ifBranch.push_back(new StmIfBranch(e, s));
     }
     if(this->cur_token == TOK_KW_ELSE){
         this->eat();
         this->eat(TOK_COLON);
         s = this->parse_suite();
-        ifBranch.push_back(StmIfBranch(s));
+        ifBranch.push_back(new StmIfBranch(s));
     }
     return Stm::make_if(ifBranch, cur_pos);
 }
 
 // 
-Stm Parser::parse_while_stmt(){
+Stm * Parser::parse_while_stmt(){
     // "while" expression ":" suite
     this->eat(TOK_KW_WHILE);
     SrcPos cur_pos = this->get_pos();
-    Expr e = this->parse_expression();
+    Expr * e = this->parse_expression();
     this->eat(TOK_COLON);
-    vector<Stm> b = this->parse_suite();
+    vector<Stm*> b = this->parse_suite();
     return Stm::make_while(e, b, cur_pos);
 }
 
 // 
-Stm Parser::parse_for_stmt(){
+Stm * Parser::parse_for_stmt(){
     // "for" identifier "in" expression ":" suite
     this->eat(TOK_KW_FOR);
     SrcPos cur_pos = this->get_pos();
     string x = this->tok.get_cur_token_str_val();
     this->eat(TOK_ID);
     this->eat(TOK_KW_IN);
-    Expr e = this->parse_expression();
+    Expr * e = this->parse_expression();
     this->eat(TOK_COLON);
-    vector<Stm> b = this->parse_suite();
+    vector<Stm*> b = this->parse_suite();
     return  Stm::make_for(x, e, b, cur_pos);
 }
 
 // 
-Stm Parser::parse_funcdef(){
+Stm * Parser::parse_funcdef(){
     // "def" funcname "(" parameter_list ")" ":" suite
     this->eat(TOK_KW_DEF);
     SrcPos cur_pos = this->get_pos();
@@ -1010,7 +1010,7 @@ Stm Parser::parse_funcdef(){
     vector<string> p =this->parse_parameter_list();
     this->eat(TOK_RPAREN);
     this->eat(TOK_COLON);
-    vector<Stm> b = this->parse_suite();
+    vector<Stm*> b = this->parse_suite();
     return Stm::make_fundef(f, p, b, cur_pos);
 }
 // 
@@ -1038,9 +1038,9 @@ string Parser::parse_funcname(){
 }
 
 // 
-vector<Stm> Parser::parse_file_input(){
+vector<Stm*> Parser::parse_file_input(){
     // (NEWLINE | statement)* EOF
-    vector<Stm> stm_list;
+    vector<Stm*> stm_list;
     while(this->cur_token != TOK_EOF){
         switch (this->cur_token){
         case TOK_NEWLINE:

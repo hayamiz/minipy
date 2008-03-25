@@ -58,12 +58,12 @@ int main(int argc, char * argv[]){
 
     Parser parser(argv[1]);
 
-    vector<Stm> input_stms =  parser.file_input();
+    vector<Stm*> input_stms =  parser.file_input();
 
-    for(vector<Stm>::iterator itr = input_stms.begin();
+    for(vector<Stm*>::iterator itr = input_stms.begin();
         itr != input_stms.end();
         itr++){
-        Printer::print_stm(*itr, 0);
+        Printer::print_stm(**itr, 0);
     }
 
     return 0;

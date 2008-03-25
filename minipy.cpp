@@ -11,7 +11,7 @@ int main(int argc, char *argv[]){
 
     Env genv;
     stack<Stack_trace_entry> bt;
-    vector<Stm> file = parser.file_input();
+    vector<Stm*> file = parser.file_input();
 
     bootstrap(eval, genv);
 
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
 void bootstrap(Eval & eval, Env & genv){
     Parser p("builtinLib.py");
     stack<Stack_trace_entry> bt;
-    vector<Stm> builtin = p.file_input();
+    vector<Stm*> builtin = p.file_input();
 
     eval.file_input(builtin, genv, bt);
 

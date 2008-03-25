@@ -18,8 +18,8 @@ private:
     static bool initp;
     static void init();
 
-    static void print_expr_list_with_comma(vector<Expr> & expr_list);
-    static void print_if_branches(vector<StmIfBranch> & branches, int indent_level);
+    static void print_expr_list_with_comma(vector<Expr*> & expr_list);
+    static void print_if_branches(vector<StmIfBranch*> & branches, int indent_level);
 public:
     static void print_expr(Expr & expr);
     static void print_stm(Stm & stm, int indent_level);

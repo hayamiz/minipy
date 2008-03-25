@@ -164,7 +164,7 @@ public:
     static py_val_t mk_char(int c);
     static py_val_t mk_float(double f);
     static py_val_t mk_string(const string & a);
-    static py_val_t mk_ifun(const symbol_t  name, vector<symbol_t>  ps, vector<Stm> & b);
+    static py_val_t mk_ifun(const symbol_t  name, vector<symbol_t>  ps, vector<Stm*> & b);
     static py_val_t mk_nfun(const symbol_t name, int arity, C_fun_t f);
     static py_val_t mk_vm_ifun(const symbol_t name, int arity, int locals, int addr, const SrcPos p);
     static py_val_t mk_tuple(const vector<Py_val*> & l);
@@ -240,7 +240,7 @@ class Py_ifun{
 public:
     symbol_t name;	/* defされた名前 */
     vector<symbol_t> ps;	/* 引数のベクタ(文字列のベクタ) */
-    vector<Stm> b;	/* 本体(文のベクタ) */
+    vector<Stm*> b;	/* 本体(文のベクタ) */
 };
 
 

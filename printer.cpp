@@ -41,30 +41,30 @@ void Printer::init(){
     }
 }
 
-void Printer::print_expr_list_with_comma(vector<Expr> & expr_list){
+void Printer::print_expr_list_with_comma(vector<Expr*> & expr_list){
     if (expr_list.size() >= 1){
-        Printer::print_expr(expr_list[0]);
+        Printer::print_expr(*expr_list[0]);
 
-        vector<Expr>::iterator itr = expr_list.begin();
+        vector<Expr*>::iterator itr = expr_list.begin();
         itr++;
         while(itr != expr_list.end()){
             cout << ", ";
-            Printer::print_expr(*itr);
+            Printer::print_expr(**itr);
             itr++;
         }
     }
 }
 
-void Printer::print_if_branches(vector<StmIfBranch> & branches, int indent_level){
-    vector<StmIfBranch>::iterator branchitr
+void Printer::print_if_branches(vector<StmIfBranch*> & branches, int indent_level){
+    vector<StmIfBranch*>::iterator branchitr
         = branches.begin();
-    vector<Stm>::iterator itr = (*branchitr).s.begin();
+    vector<Stm*>::iterator itr = (**branchitr).s.begin();
 
     cout << "if ";
-    Printer::print_expr((*branchitr).e);
+    Printer::print_expr(*(**branchitr).e);
     cout << ":" << endl;
-    while (itr != (*branchitr).s.end()){
-        Printer::print_stm(*itr, indent_level + 1);
+    while (itr != (**branchitr).s.end()){
+        Printer::print_stm(**itr, indent_level + 1);
         itr++;
     }
     branchitr++;
@@ -76,17 +76,17 @@ void Printer::print_if_branches(vector<StmIfBranch> & branches, int indent_level
             i--;
         }
                 
-        if((*branchitr).elsep)
+        if((**branchitr).elsep)
             cout << "else";
         else{
             cout << "elif ";
-            Printer::print_expr((*branchitr).e);
+            Printer::print_expr(*(**branchitr).e);
         }
         cout << ":" << endl;
 
-        itr = (*branchitr).s.begin();
-        while (itr != (*branchitr).s.end()){
-            Printer::print_stm(*itr, indent_level + 1);
+        itr = (**branchitr).s.begin();
+        while (itr != (**branchitr).s.end()){
+            Printer::print_stm(**itr, indent_level + 1);
             itr++;
         }
         branchitr++;
@@ -153,28 +153,28 @@ void Printer::print_expr(Expr & expr){
     case expr_kind_operator:
         switch((*expr.u.op).fix){
         case fix_kind_infix:
-            Printer::print_expr((*expr.u.op).args[0]);
+            Printer::print_expr(*(*expr.u.op).args[0]);
             cout << " " << Printer::operator_map[(*expr.u.op).kind] << " ";
-            Printer::print_expr((*expr.u.op).args[1]);
+            Printer::print_expr(*(*expr.u.op).args[1]);
             break;
         case fix_kind_prefix:
             cout << Printer::operator_map[(*expr.u.op).kind] << " ";
-            Printer::print_expr((*expr.u.op).args[0]);
+            Printer::print_expr(*(*expr.u.op).args[0]);
             break;
         }
         break;
     case expr_kind_attref:
-        Printer::print_expr((*expr.u.atr).a);
-        cout << "." << (*expr.u.atr).f;
+        Printer::print_expr(*(*expr.u.atr).a);
+        cout << "." << *(*expr.u.atr).f;
         break;
     case expr_kind_subscript:
-        Printer::print_expr((*expr.u.sub)[0]);
+        Printer::print_expr(*(*expr.u.sub)[0]);
         cout << "[";
-        Printer::print_expr((*expr.u.sub)[1]);
+        Printer::print_expr(*(*expr.u.sub)[1]);
         cout << "]";
         break;
     case expr_kind_call:
-        Printer::print_expr((*expr.u.call).f);
+        Printer::print_expr(*(*expr.u.call).f);
         cout << "(";
         Printer::print_expr_list_with_comma((*expr.u.call).args);
         cout << ")";
@@ -197,9 +197,9 @@ void Printer::print_stm(Stm & stm, int indent_level){
         cout << endl;
         break;
     case stm_kind_assignment:
-        Printer::print_expr((*stm.u.a).target);
+        Printer::print_expr(*(*stm.u.a).target);
         cout << " = ";
-        Printer::print_expr((*stm.u.a).val);
+        Printer::print_expr(*(*stm.u.a).val);
         cout << endl;
         break;
     case stm_kind_del:
@@ -237,29 +237,29 @@ void Printer::print_stm(Stm & stm, int indent_level){
         break;
     case stm_kind_while:
         cout << "while ";
-        Printer::print_expr((*stm.u.w).e);
+        Printer::print_expr(*(*stm.u.w).e);
         cout << ":" << endl;
-        for(vector<Stm>::iterator itr = (*stm.u.w).b.begin();
+        for(vector<Stm*>::iterator itr = (*stm.u.w).b.begin();
             itr != (*stm.u.w).b.end();
             itr++){
-            Printer::print_stm(*itr, indent_level + 1);
+            Printer::print_stm(**itr, indent_level + 1);
         }
         break;
     case stm_kind_for:
-        cout << "for " << (*stm.u.f).x << " in ";
-        Printer::print_expr((*stm.u.f).e);
+        cout << "for " << *(*stm.u.f).x << " in ";
+        Printer::print_expr(*(*stm.u.f).e);
         cout << ":" << endl;
-        for(vector<Stm>::iterator itr = (*stm.u.f).b.begin();
+        for(vector<Stm*>::iterator itr = (*stm.u.f).b.begin();
             itr != (*stm.u.f).b.end();
             itr++){
-            Printer::print_stm(*itr, indent_level + 1);
+            Printer::print_stm(**itr, indent_level + 1);
         }
         break;
     case stm_kind_fundef:
-        cout << "def " << (*stm.u.d).f << "(";
+        cout << "def " << *(*stm.u.d).f << "(";
 
         if ((*stm.u.d).ps.size() >= 1){
-            cout << (*stm.u.d).ps[0];
+            cout << *(*stm.u.d).ps[0];
             vector<symbol_t>::iterator itr = (*stm.u.d).ps.begin();
             itr++;
             while(itr != (*stm.u.d).ps.end()){
@@ -269,9 +269,9 @@ void Printer::print_stm(Stm & stm, int indent_level){
         }
         cout << "):" << endl;
         
-        vector<Stm>::iterator itr = (*stm.u.d).b.begin();
+        vector<Stm*>::iterator itr = (*stm.u.d).b.begin();
         while(itr != (*stm.u.d).b.end()){
-            Printer::print_stm(*itr, indent_level + 1);
+            Printer::print_stm(**itr, indent_level + 1);
             itr++;
         }
         break;

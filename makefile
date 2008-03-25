@@ -104,109 +104,130 @@ parser :
 # (minipy-insert-parser-test)
 	@echo "Parser test: ./testdata-parser/basics/big_list.py"
 	@./test_parser ./testdata-parser/basics/big_list.py > ./testdata-parser/basics/big_list.py.parsed
-	@./test_parser ./testdata-parser/basics/big_list.py.parsed | diff -uB - ./testdata-parser/basics/big_list.py.parsed
+	@./test_parser ./testdata-parser/basics/big_list.py.parsed > ./testdata-parser/basics/big_list.py.parsed.parsed
+	@diff -uB ./testdata-parser/basics/big_list.py.parsed ./testdata-parser/basics/big_list.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/basics/big_list.py.parsed
+	@rm ./testdata-parser/basics/big_list.py.parsed ./testdata-parser/basics/big_list.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/basics/test_dict.py"
 	@./test_parser ./testdata-parser/basics/test_dict.py > ./testdata-parser/basics/test_dict.py.parsed
-	@./test_parser ./testdata-parser/basics/test_dict.py.parsed | diff -uB - ./testdata-parser/basics/test_dict.py.parsed
+	@./test_parser ./testdata-parser/basics/test_dict.py.parsed > ./testdata-parser/basics/test_dict.py.parsed.parsed
+	@diff -uB ./testdata-parser/basics/test_dict.py.parsed ./testdata-parser/basics/test_dict.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/basics/test_dict.py.parsed
+	@rm ./testdata-parser/basics/test_dict.py.parsed ./testdata-parser/basics/test_dict.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/basics/test_tuple.py"
 	@./test_parser ./testdata-parser/basics/test_tuple.py > ./testdata-parser/basics/test_tuple.py.parsed
-	@./test_parser ./testdata-parser/basics/test_tuple.py.parsed | diff -uB - ./testdata-parser/basics/test_tuple.py.parsed
+	@./test_parser ./testdata-parser/basics/test_tuple.py.parsed > ./testdata-parser/basics/test_tuple.py.parsed.parsed
+	@diff -uB ./testdata-parser/basics/test_tuple.py.parsed ./testdata-parser/basics/test_tuple.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/basics/test_tuple.py.parsed
+	@rm ./testdata-parser/basics/test_tuple.py.parsed ./testdata-parser/basics/test_tuple.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/basics/test_list.py"
 	@./test_parser ./testdata-parser/basics/test_list.py > ./testdata-parser/basics/test_list.py.parsed
-	@./test_parser ./testdata-parser/basics/test_list.py.parsed | diff -uB - ./testdata-parser/basics/test_list.py.parsed
+	@./test_parser ./testdata-parser/basics/test_list.py.parsed > ./testdata-parser/basics/test_list.py.parsed.parsed
+	@diff -uB ./testdata-parser/basics/test_list.py.parsed ./testdata-parser/basics/test_list.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/basics/test_list.py.parsed
+	@rm ./testdata-parser/basics/test_list.py.parsed ./testdata-parser/basics/test_list.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/basics/test_string.py"
 	@./test_parser ./testdata-parser/basics/test_string.py > ./testdata-parser/basics/test_string.py.parsed
-	@./test_parser ./testdata-parser/basics/test_string.py.parsed | diff -uB - ./testdata-parser/basics/test_string.py.parsed
+	@./test_parser ./testdata-parser/basics/test_string.py.parsed > ./testdata-parser/basics/test_string.py.parsed.parsed
+	@diff -uB ./testdata-parser/basics/test_string.py.parsed ./testdata-parser/basics/test_string.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/basics/test_string.py.parsed
+	@rm ./testdata-parser/basics/test_string.py.parsed ./testdata-parser/basics/test_string.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/basics/test_number.py"
 	@./test_parser ./testdata-parser/basics/test_number.py > ./testdata-parser/basics/test_number.py.parsed
-	@./test_parser ./testdata-parser/basics/test_number.py.parsed | diff -uB - ./testdata-parser/basics/test_number.py.parsed
+	@./test_parser ./testdata-parser/basics/test_number.py.parsed > ./testdata-parser/basics/test_number.py.parsed.parsed
+	@diff -uB ./testdata-parser/basics/test_number.py.parsed ./testdata-parser/basics/test_number.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/basics/test_number.py.parsed
+	@rm ./testdata-parser/basics/test_number.py.parsed ./testdata-parser/basics/test_number.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/basics/big_dict.py"
 	@./test_parser ./testdata-parser/basics/big_dict.py > ./testdata-parser/basics/big_dict.py.parsed
-	@./test_parser ./testdata-parser/basics/big_dict.py.parsed | diff -uB - ./testdata-parser/basics/big_dict.py.parsed
+	@./test_parser ./testdata-parser/basics/big_dict.py.parsed > ./testdata-parser/basics/big_dict.py.parsed.parsed
+	@diff -uB ./testdata-parser/basics/big_dict.py.parsed ./testdata-parser/basics/big_dict.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/basics/big_dict.py.parsed
+	@rm ./testdata-parser/basics/big_dict.py.parsed ./testdata-parser/basics/big_dict.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/simple/integral.py"
 	@./test_parser ./testdata-parser/simple/integral.py > ./testdata-parser/simple/integral.py.parsed
-	@./test_parser ./testdata-parser/simple/integral.py.parsed | diff -uB - ./testdata-parser/simple/integral.py.parsed
+	@./test_parser ./testdata-parser/simple/integral.py.parsed > ./testdata-parser/simple/integral.py.parsed.parsed
+	@diff -uB ./testdata-parser/simple/integral.py.parsed ./testdata-parser/simple/integral.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/simple/integral.py.parsed
+	@rm ./testdata-parser/simple/integral.py.parsed ./testdata-parser/simple/integral.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/simple/gcd.py"
 	@./test_parser ./testdata-parser/simple/gcd.py > ./testdata-parser/simple/gcd.py.parsed
-	@./test_parser ./testdata-parser/simple/gcd.py.parsed | diff -uB - ./testdata-parser/simple/gcd.py.parsed
+	@./test_parser ./testdata-parser/simple/gcd.py.parsed > ./testdata-parser/simple/gcd.py.parsed.parsed
+	@diff -uB ./testdata-parser/simple/gcd.py.parsed ./testdata-parser/simple/gcd.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/simple/gcd.py.parsed
+	@rm ./testdata-parser/simple/gcd.py.parsed ./testdata-parser/simple/gcd.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/simple/fib.py"
 	@./test_parser ./testdata-parser/simple/fib.py > ./testdata-parser/simple/fib.py.parsed
-	@./test_parser ./testdata-parser/simple/fib.py.parsed | diff -uB - ./testdata-parser/simple/fib.py.parsed
+	@./test_parser ./testdata-parser/simple/fib.py.parsed > ./testdata-parser/simple/fib.py.parsed.parsed
+	@diff -uB ./testdata-parser/simple/fib.py.parsed ./testdata-parser/simple/fib.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/simple/fib.py.parsed
+	@rm ./testdata-parser/simple/fib.py.parsed ./testdata-parser/simple/fib.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/simple/fact.py"
 	@./test_parser ./testdata-parser/simple/fact.py > ./testdata-parser/simple/fact.py.parsed
-	@./test_parser ./testdata-parser/simple/fact.py.parsed | diff -uB - ./testdata-parser/simple/fact.py.parsed
+	@./test_parser ./testdata-parser/simple/fact.py.parsed > ./testdata-parser/simple/fact.py.parsed.parsed
+	@diff -uB ./testdata-parser/simple/fact.py.parsed ./testdata-parser/simple/fact.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/simple/fact.py.parsed
+	@rm ./testdata-parser/simple/fact.py.parsed ./testdata-parser/simple/fact.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/full/qsort.py"
 	@./test_parser ./testdata-parser/full/qsort.py > ./testdata-parser/full/qsort.py.parsed
-	@./test_parser ./testdata-parser/full/qsort.py.parsed | diff -uB - ./testdata-parser/full/qsort.py.parsed
+	@./test_parser ./testdata-parser/full/qsort.py.parsed > ./testdata-parser/full/qsort.py.parsed.parsed
+	@diff -uB ./testdata-parser/full/qsort.py.parsed ./testdata-parser/full/qsort.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/full/qsort.py.parsed
+	@rm ./testdata-parser/full/qsort.py.parsed ./testdata-parser/full/qsort.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/full/mst.py"
 	@./test_parser ./testdata-parser/full/mst.py > ./testdata-parser/full/mst.py.parsed
-	@./test_parser ./testdata-parser/full/mst.py.parsed | diff -uB - ./testdata-parser/full/mst.py.parsed
+	@./test_parser ./testdata-parser/full/mst.py.parsed > ./testdata-parser/full/mst.py.parsed.parsed
+	@diff -uB ./testdata-parser/full/mst.py.parsed ./testdata-parser/full/mst.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/full/mst.py.parsed
+	@rm ./testdata-parser/full/mst.py.parsed ./testdata-parser/full/mst.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/full/nbody.py"
 	@./test_parser ./testdata-parser/full/nbody.py > ./testdata-parser/full/nbody.py.parsed
-	@./test_parser ./testdata-parser/full/nbody.py.parsed | diff -uB - ./testdata-parser/full/nbody.py.parsed
+	@./test_parser ./testdata-parser/full/nbody.py.parsed > ./testdata-parser/full/nbody.py.parsed.parsed
+	@diff -uB ./testdata-parser/full/nbody.py.parsed ./testdata-parser/full/nbody.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/full/nbody.py.parsed
+	@rm ./testdata-parser/full/nbody.py.parsed ./testdata-parser/full/nbody.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/full/sor.py"
 	@./test_parser ./testdata-parser/full/sor.py > ./testdata-parser/full/sor.py.parsed
-	@./test_parser ./testdata-parser/full/sor.py.parsed | diff -uB - ./testdata-parser/full/sor.py.parsed
+	@./test_parser ./testdata-parser/full/sor.py.parsed > ./testdata-parser/full/sor.py.parsed.parsed
+	@diff -uB ./testdata-parser/full/sor.py.parsed ./testdata-parser/full/sor.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/full/sor.py.parsed
+	@rm ./testdata-parser/full/sor.py.parsed ./testdata-parser/full/sor.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/full/graph.py"
 	@./test_parser ./testdata-parser/full/graph.py > ./testdata-parser/full/graph.py.parsed
-	@./test_parser ./testdata-parser/full/graph.py.parsed | diff -uB - ./testdata-parser/full/graph.py.parsed
+	@./test_parser ./testdata-parser/full/graph.py.parsed > ./testdata-parser/full/graph.py.parsed.parsed
+	@diff -uB ./testdata-parser/full/graph.py.parsed ./testdata-parser/full/graph.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/full/graph.py.parsed
+	@rm ./testdata-parser/full/graph.py.parsed ./testdata-parser/full/graph.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/graphics/taylor.py"
 	@./test_parser ./testdata-parser/graphics/taylor.py > ./testdata-parser/graphics/taylor.py.parsed
-	@./test_parser ./testdata-parser/graphics/taylor.py.parsed | diff -uB - ./testdata-parser/graphics/taylor.py.parsed
+	@./test_parser ./testdata-parser/graphics/taylor.py.parsed > ./testdata-parser/graphics/taylor.py.parsed.parsed
+	@diff -uB ./testdata-parser/graphics/taylor.py.parsed ./testdata-parser/graphics/taylor.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/graphics/taylor.py.parsed
+	@rm ./testdata-parser/graphics/taylor.py.parsed ./testdata-parser/graphics/taylor.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/graphics/drawmap.py"
 	@./test_parser ./testdata-parser/graphics/drawmap.py > ./testdata-parser/graphics/drawmap.py.parsed
-	@./test_parser ./testdata-parser/graphics/drawmap.py.parsed | diff -uB - ./testdata-parser/graphics/drawmap.py.parsed
+	@./test_parser ./testdata-parser/graphics/drawmap.py.parsed > ./testdata-parser/graphics/drawmap.py.parsed.parsed
+	@diff -uB ./testdata-parser/graphics/drawmap.py.parsed ./testdata-parser/graphics/drawmap.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/graphics/drawmap.py.parsed
+	@rm ./testdata-parser/graphics/drawmap.py.parsed ./testdata-parser/graphics/drawmap.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/graphics/drawgraph.py"
 	@./test_parser ./testdata-parser/graphics/drawgraph.py > ./testdata-parser/graphics/drawgraph.py.parsed
-	@./test_parser ./testdata-parser/graphics/drawgraph.py.parsed | diff -uB - ./testdata-parser/graphics/drawgraph.py.parsed
+	@./test_parser ./testdata-parser/graphics/drawgraph.py.parsed > ./testdata-parser/graphics/drawgraph.py.parsed.parsed
+	@diff -uB ./testdata-parser/graphics/drawgraph.py.parsed ./testdata-parser/graphics/drawgraph.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/graphics/drawgraph.py.parsed
+	@rm ./testdata-parser/graphics/drawgraph.py.parsed ./testdata-parser/graphics/drawgraph.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/graphics/draw3D.py"
 	@./test_parser ./testdata-parser/graphics/draw3D.py > ./testdata-parser/graphics/draw3D.py.parsed
-	@./test_parser ./testdata-parser/graphics/draw3D.py.parsed | diff -uB - ./testdata-parser/graphics/draw3D.py.parsed
+	@./test_parser ./testdata-parser/graphics/draw3D.py.parsed > ./testdata-parser/graphics/draw3D.py.parsed.parsed
+	@diff -uB ./testdata-parser/graphics/draw3D.py.parsed ./testdata-parser/graphics/draw3D.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/graphics/draw3D.py.parsed
+	@rm ./testdata-parser/graphics/draw3D.py.parsed ./testdata-parser/graphics/draw3D.py.parsed.parsed
 	@echo "Parser test: ./testdata-parser/graphics/newton.py"
 	@./test_parser ./testdata-parser/graphics/newton.py > ./testdata-parser/graphics/newton.py.parsed
-	@./test_parser ./testdata-parser/graphics/newton.py.parsed | diff -uB - ./testdata-parser/graphics/newton.py.parsed
+	@./test_parser ./testdata-parser/graphics/newton.py.parsed > ./testdata-parser/graphics/newton.py.parsed.parsed
+	@diff -uB ./testdata-parser/graphics/newton.py.parsed ./testdata-parser/graphics/newton.py.parsed.parsed
 	@echo "                                                            [ \(^O^)/ success ]"
-	@rm ./testdata-parser/graphics/newton.py.parsed
+	@rm ./testdata-parser/graphics/newton.py.parsed ./testdata-parser/graphics/newton.py.parsed.parsed
 # ---- end of minipy-insert-parser-test ----
 
 check-syntax:

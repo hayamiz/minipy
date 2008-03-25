@@ -295,7 +295,7 @@ Tokenizer& Tokenizer::tokenize_string(){
                   
                   this->charstream.get_next_char();
                   tmp += '\n';
-                  this->cur_token_string += '\n';
+                  this->cur_token_string += "\\n";
               } else {
                   tmp += c;
                   this->cur_token_string += this->charstream.get_cur_char();

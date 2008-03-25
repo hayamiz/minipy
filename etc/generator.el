@@ -150,9 +150,10 @@
 	  (concat
 	   (format "\n\t@echo \"Parser test: %s\"" source)
 	   (format "\n\t@./test_parser %s > %s.parsed" source source)
-	   (format "\n\t@./test_parser %s.parsed | diff -uB - %s.parsed" source source)
+	   (format "\n\t@./test_parser %s.parsed > %s.parsed.parsed" source source)
+	   (format "\n\t@diff -uB %s.parsed %s.parsed.parsed" source source)
 	   (format "\n\t@echo \"%s%s\"" (make-string 60 ? ) success-message)
-	   (format "\n\t@rm %s.parsed" source)
+	   (format "\n\t@rm %s.parsed %s.parsed.parsed" source source)
 	   )))
        )))
 
