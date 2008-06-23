@@ -1,0 +1,32 @@
+
+a
+ab
+
+a
+ab
+a
+aa
+aab
+ab
+aba
+abab
+
+
+
+
+a
+aa
+
+ab
+abab
+0
+1
+2
+a
+a
+a
+b
+b
+b
+answer = 5
+fib(10) = 89

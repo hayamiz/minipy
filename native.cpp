@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 #include "native.hpp"
 // dictのキー：値リストって何返せばいいんだろう。
 

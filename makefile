@@ -7,7 +7,11 @@ TEST_OBJ_FILES = tests/testRunner.o
 
 # CPP_FLAGS = -g -Wall -fno-default-inline -pg
 CPP_FLAGS = -g -Wall -fno-default-inline
-# CPP_FLAGS = -Wall -O3 -DRELEASE_BUILD
+# CPP_FLAGS = -Wall -O3 -g -DRELEASE_BUILD
+
+all:
+	make minipy
+	make vmpy
 
 minipy: ${OBJ_FILES} minipy.o
 	g++ ${CPP_FLAGS} ${OBJ_FILES} minipy.o -o minipy
@@ -22,14 +26,14 @@ minipy.o : minipy.cpp minipy.hpp bootstrap.inc
 vmpy : ${VMOBJ_FILES} vminsns.o translator.o printer.o tivi.o vmpy.o 
 	g++ ${CPP_FLAGS} -o vmpy ${VMOBJ_FILES} vmpy.o printer.o vminsns.o translator.o tivi.o
 
-# dispatchtable.inc : etc/vmcodegen.lisp
-# 	./etc/vmcodegen.lisp dispatchtable 2> /dev/null 1> dispatchtable.inc
+dispatchtable.inc : etc/vmcodegen.lisp
+	./etc/vmcodegen.lisp dispatchtable 2> /dev/null 1> dispatchtable.inc
 
-# vminsns.inc : etc/vmcodegen.lisp
-# 	./etc/vmcodegen.lisp insns 2> /dev/null 1> vminsns.inc
+vminsns.inc : etc/vmcodegen.lisp
+	./etc/vmcodegen.lisp insns 2> /dev/null 1> vminsns.inc
 
-# vminsns_print.inc : etc/vmcodegen.lisp
-# 	./etc/vmcodegen.lisp print 2> /dev/null 1> vminsns_print.inc
+vminsns_print.inc : etc/vmcodegen.lisp
+	./etc/vmcodegen.lisp print 2> /dev/null 1> vminsns_print.inc
 
 vminsns.o : vminsns.cpp vminsns.hpp vminsns.inc vminsns_print.inc
 	g++ ${CPP_FLAGS} -c $<
@@ -49,12 +53,16 @@ clean :
 test :
 	make tokenizer
 	make parser
+	make test_run
 
 test_parser: test_parser.cpp test_parser.hpp ${OBJ_FILES} printer.o
 	g++ ${CPP_FLAGS} test_parser.cpp ${OBJ_FILES} printer.o -o test_parser
 
 test_tokenizer: test_tokenizer.cpp test_tokenizer.hpp ${OBJ_FILES}
 	g++ ${CPP_FLAGS} test_tokenizer.cpp ${OBJ_FILES} -o test_tokenizer
+
+test_run: vmpy minipy
+	for file in `find testdata-parser/simple testdata-parser/basics/ -name "*.py"`; do echo $$file; ./vmpy $$file | diff - $$file.right; done
 
 test_pyvalues:
 	make pyvalues.o

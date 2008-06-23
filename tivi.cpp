@@ -113,9 +113,31 @@ void Tivi::run(int entry_point){
     py_val_t a[4];
     register py_val_t f = NULL;
     register int numarg;
-    
+
+    // reverse dictionary of symbols in global environment
     symbol_t * genv_rev = NULL;
+    /*
+     * You know all the symbols used in a python program,
+     * so you can access to a value bound to a symbol in a O(1) time
+     * by numbering each symbol.
+     *
+     * ex)
+     * symbol: foo, and bar appears in a program.
+     * Say 0:foo, 1:bar,
+     * python code:'foo = bar + 1' is executed like this:
+     * C++ code:'genv[0] = genv[1] + 1;'
+     *
+     * To remember what the index '0' means,
+     * correspondences between indexes and symbols are stored in
+     * genv_rev
+     * ex)
+     * genv_rev[0] == 'foo'; genv_rev[1] == 'bar';
+     */
+
+    // array of minipython byte code
     tivi_insn * insns = NULL;
+
+    // construct genv_rev, and modify byte code to use genv_rev
     presetup(&insns, &genv_rev);
     py_val_t globals[this->genv.size()];
     for (uint i = 0; i < this->genv.size();i++){
