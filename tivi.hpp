@@ -43,6 +43,32 @@ private:
     VmEnv * env; // ENV
     vm_insn_type inst; // INST
 
+    tivi_insn * insns;
+
+    // dictionary of global environment
+    py_val_t * globals;
+    // reverse dictionary of symbols in global environment
+    symbol_t * genv_rev;
+    /*
+     * You know all the symbols used in a python program,
+     * so you can access to a value bound to a symbol in a O(1) time
+     * by numbering each symbol.
+     *
+     * ex)
+     * symbol: foo, and bar appears in a program.
+     * Say 0:foo, 1:bar,
+     * python code:'foo = bar + 1' is executed like this:
+     * C++ code:'genv[0] = genv[1] + 1;'
+     *
+     * To remember what the index '0' means,
+     * correspondences between indexes and symbols are stored in
+     * genv_rev
+     * ex)
+     * genv_rev[0] == 'foo'; genv_rev[1] == 'bar';
+     */
+
+    // array of minipython byte code
+
 
 #define PC (program_counter)
 #define SP (stack_pointer)
@@ -60,11 +86,12 @@ private:
 
 public:
     Tivi();
+    virtual ~Tivi();
 
     void load_file(const string & filename);
     void run(int entry_point);
-    void presetup(tivi_insn ** insns, symbol_t ** genv_rev);
-
+    void presetup();
+    
     void runtime_error(const string & msg, stack<Stack_trace_entry> & bt, int program_counter);
 
     void disasm();

@@ -24,6 +24,7 @@ class Py_dict_entry;
 class Py_dict;
 class Env;
 class Py_tuple;
+class Py_thread;
 
 /* stack trace */
 class Stack_trace_entry{
@@ -31,6 +32,33 @@ public:
     string name;
     const SrcPos & call_site;
     Stack_trace_entry(const string & name, const SrcPos & call_site);
+};
+
+template <class T>
+class ConsStack {
+private:
+    T _car;
+    ConsStack * _cdr;
+public:
+    ConsStack(T car, ConsStack * cdr)
+        :_car(car), _cdr(cdr){};
+    virtual ~ConsStack(){
+        delete(this->_car);
+        if (this->_cdr != NULL)
+            delete(this->_cdr);
+    };
+
+    ConsStack * pop(){
+        delete(this->_car);
+        return this->_cdr;
+    };
+
+    T car(){
+        return this->_car;
+    };
+    ConsStack * cdr(){
+        return this->_cdr;
+    };
 };
 
 /* error reporting */
@@ -59,6 +87,7 @@ typedef enum{
     py_type_vm_ifun,
     py_type_newdict,		/* 辞書 */
     py_type_newtuple,
+    py_type_thread,
 } py_type_t;
 
 
@@ -120,6 +149,7 @@ public:
         vector<Py_dict_entry*>* d;	/* dict */
         Py_dict * nd;	/* dict */
         Py_tuple * nl;  /* tuple or list(in the future) */
+        Py_thread * th;
     } u;
 
     /* それぞれpが整数，文字か，浮動小数点なら1 */
@@ -179,6 +209,8 @@ public:
     static py_val_t mk_newdict();
     static py_val_t mk_newdict(vector<Py_dict_entry*> & d);
     static py_val_t mk_none();
+    
+    static py_val_t mk_thread(py_val_t func);
 
 #define mkint(var) Py_val::mk_int(var)
 #define mkchar(var) Py_val::mk_char(var)
@@ -311,6 +343,23 @@ public:
     void append(Py_tuple * tup);
     py_val_t get(unsigned int index);
     unsigned int size();
+};
+
+class Py_thread {
+public:
+    pthread_t th;
+    py_val_t func;
+    
+    Py_thread(py_val_t func);
+    ~Py_thread();
+};
+
+class Py_thread_args {
+public:
+    Py_thread * th;
+    stack<Stack_trace_entry> * strace;
+    const SrcPos * pos;
+    py_val_t * args;
 };
 
 #endif

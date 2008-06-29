@@ -7,6 +7,7 @@
 #define TIVI_FETCH_SRCPOS() (*insns[PC].p)
 
 #define TIVI_LREF(offset) (this->machine_stack[FP + (offset) + 2])
+#define TIVI_GREF(operand) (this->globals[(int)(operand)])
 #define TIVI_LSET(offset, value) TIVI_LREF(offset) = (value)
 #define TIVI_STACK(offset_from_top) (this->machine_stack[SP - 1 - (offset_from_top)])
 
@@ -39,6 +40,10 @@ Tivi::Tivi(){
 #include "bootstrap.inc"
 }
 
+Tivi::~Tivi(){
+    delete[](this->machine_stack);
+}
+
 void Tivi::load_file(const string & filename){
     Parser parser(filename);
     vector<Stm*> stms = parser.file_input();
@@ -65,35 +70,35 @@ void Tivi::runtime_error(const string & msg, stack<Stack_trace_entry> & bt, int 
     exit(1);
 }
 
-void Tivi::presetup(tivi_insn ** insns, symbol_t ** genv_rev){
+void Tivi::presetup(){
     uint size = this->vmasm.insns.size();
 
-    *insns = new tivi_insn[size];
-    *genv_rev = new symbol_t[this->genv.size()];
+    this->insns = new tivi_insn[size];
+    this->genv_rev = new symbol_t[this->genv.size()];
 
     map<symbol_t, int> sym_to_index;
 
     int gvar_index = 0;
     for (uint i = 0; i < size; i++){
         vm_inst & insn = this->vmasm.insns[i];
-        (*insns)[i].p = (SrcPos *)insn.p;
-        switch ((*insns)[i].type = insn.type){
+        this->insns[i].p = (SrcPos *)insn.p;
+        switch (this->insns[i].type = insn.type){
         case VM_GREF:
         case VM_GREF_PUSH:
         case VM_GSET:
         case VM_GINC:
         case VM_GREF_CALL:
             if (sym_to_index.find((symbol_t) insn.operand) == sym_to_index.end()){
-                (*insns)[i].operand = (void*) gvar_index;
+                this->insns[i].operand = (void*) gvar_index;
                 sym_to_index[(symbol_t) insn.operand] = gvar_index;
-                (*genv_rev)[gvar_index] = (symbol_t)insn.operand;
+                this->genv_rev[gvar_index] = (symbol_t)insn.operand;
                 gvar_index++;
             } else {
-                (*insns)[i].operand = (void *)sym_to_index[(symbol_t) insn.operand];
+                this->insns[i].operand = (void *)sym_to_index[(symbol_t) insn.operand];
             }
             break;
         default:
-            (*insns)[i].operand = insn.operand;
+            this->insns[i].operand = insn.operand;
             break;
         }
     }
@@ -114,36 +119,12 @@ void Tivi::run(int entry_point){
     register py_val_t f = NULL;
     register int numarg;
 
-    // reverse dictionary of symbols in global environment
-    symbol_t * genv_rev = NULL;
-    /*
-     * You know all the symbols used in a python program,
-     * so you can access to a value bound to a symbol in a O(1) time
-     * by numbering each symbol.
-     *
-     * ex)
-     * symbol: foo, and bar appears in a program.
-     * Say 0:foo, 1:bar,
-     * python code:'foo = bar + 1' is executed like this:
-     * C++ code:'genv[0] = genv[1] + 1;'
-     *
-     * To remember what the index '0' means,
-     * correspondences between indexes and symbols are stored in
-     * genv_rev
-     * ex)
-     * genv_rev[0] == 'foo'; genv_rev[1] == 'bar';
-     */
-
-    // array of minipython byte code
-    tivi_insn * insns = NULL;
-
     // construct genv_rev, and modify byte code to use genv_rev
-    presetup(&insns, &genv_rev);
-    py_val_t globals[this->genv.size()];
+    presetup();
+    this->globals = new py_val_t[this->genv.size()];
     for (uint i = 0; i < this->genv.size();i++){
-        globals[i] = this->genv.lookup_sym(genv_rev[i]);
+        this->globals[i] = this->genv.lookup_sym(this->genv_rev[i]);
     }
-
 
 // #undef __GNUC__
 #ifdef __GNUC__
@@ -158,7 +139,7 @@ void Tivi::run(int entry_point){
 #include "dispatchtable.inc"
     void * gototable[pc_limit];
     for(int i = 0; i < pc_limit; i++){
-        gototable[i] = dispatchtable[insns[i].type];
+        gototable[i] = dispatchtable[this->insns[i].type];
     }
 #else
 
@@ -306,29 +287,29 @@ main_loop:
     CASE(VM_GREF)
     {
         // one operand
-        VAL = globals[(int)TIVI_FETCH_OPERAND()];
+        VAL = TIVI_GREF(TIVI_FETCH_OPERAND());
         TIVI_NEXTI();
     }
     BREAK;
     CASE(VM_GREF_PUSH)
     {
         // one operand
-        TIVI_PUSHI(globals[(int)TIVI_FETCH_OPERAND()]);
+        TIVI_PUSHI(TIVI_GREF(TIVI_FETCH_OPERAND()));
         TIVI_NEXTI();
     }
     BREAK;
     CASE(VM_GSET)
     {
         // one operand
-        globals[(int)TIVI_FETCH_OPERAND()] = VAL;
+        TIVI_GREF(TIVI_FETCH_OPERAND()) = VAL;
         TIVI_NEXTI();
     }
     BREAK;
     CASE(VM_GINC)
     {
         // one operand
-        globals[(int)TIVI_FETCH_OPERAND()] 
-            = (py_val_t)((int)globals[(uint)TIVI_FETCH_OPERAND()] + 2);
+        TIVI_GREF(TIVI_FETCH_OPERAND()) 
+            = (py_val_t)((int)TIVI_GREF(TIVI_FETCH_OPERAND()) + 2);
         TIVI_NEXTI();
     }
     BREAK;
@@ -707,12 +688,14 @@ main_loop:
         numarg = SP - ARGP;
 
         if (INST == VM_GREF_CALL){
-            if ((f = globals[(int)TIVI_FETCH_OPERAND()]) == py_val_not_found){
+            if ((f = TIVI_GREF(TIVI_FETCH_OPERAND())) == py_val_not_found){
                 runtime_error("no such function ", bt, PC);
             }
             bt.push(Stack_trace_entry(*(symbol_t)vmasm.insns[PC].operand
                                       , TIVI_FETCH_SRCPOS()));
         } else if (INST == VM_VREF_CALL){
+            // VREF_CALL means a function to be called is pointed by
+            // VAL register
             f = VAL;
             if (f->type == py_type_nfun){
                 bt.push(Stack_trace_entry(*f->u.n->name, TIVI_FETCH_SRCPOS()));
@@ -722,6 +705,8 @@ main_loop:
                 runtime_error("type error : no function object was called.", bt, PC);
             }
         } else if (INST == VM_LREF_CALL){
+            // LREF_CALL means a function to be called is pointed by
+            // a value in stack frame(local variable)
             f = TIVI_LREF((int)TIVI_FETCH_OPERAND());
             if (f->type == py_type_nfun){
                 bt.push(Stack_trace_entry(*f->u.n->name, TIVI_FETCH_SRCPOS()));
@@ -731,6 +716,8 @@ main_loop:
                 runtime_error("type error : no function object was called.", bt, PC);
             }
         } else if (INST == VM_SELF_CALL){
+            // SELF_CALL means a function to be called is pointed by
+            // a operand
             f = TIVI_FETCH_OPERAND();
             bt.push(Stack_trace_entry(*f->u.vm_i->name, TIVI_FETCH_SRCPOS()));
         }
@@ -957,10 +944,11 @@ main_loop:
 loop_exit:
 
     for (uint i = 0; i < this->genv.size();i++){
-        this->genv.set_sym(genv_rev[i], globals[i]);
+        this->genv.set_sym(this->genv_rev[i], this->globals[i]);
     }
-    delete[](genv_rev);
-    delete[](insns);
+    delete[](this->genv_rev);
+    delete[](this->insns);
+    delete[](this->globals);
 }
 
 void Tivi::disasm(){

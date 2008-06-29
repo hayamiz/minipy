@@ -8,6 +8,10 @@
 #include "pyvalues.hpp"
 #include "syntax_tree.hpp"
 #include "env.hpp"
+#include "tivi.hpp"
+
+// experimental multithread implementation
+#include <pthread.h>
 
 namespace native{
     /* 値が特定の型であるかを判定する関数群 */
@@ -243,6 +247,13 @@ namespace native{
     py_val_t sys_sleep(stack<Stack_trace_entry> & bt,const SrcPos & p,
                    py_val_t * a);
 
+    // experimental multithread implementation
+    py_val_t thread_start(stack<Stack_trace_entry> & bt,const SrcPos & p,
+                          py_val_t * a);
+    py_val_t thread_join(stack<Stack_trace_entry> & bt,const SrcPos & p,
+                         py_val_t * a);
+    void * thread_nfun_dispatch(void * a);
+    void * thread_vfun_dispatch(void * a);
 }
 
 #endif

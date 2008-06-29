@@ -1511,3 +1511,67 @@ py_val_t native::sys_sleep(stack<Stack_trace_entry> & bt,const SrcPos & p,
 
     return ret;
 }
+
+py_val_t native::thread_start(stack<Stack_trace_entry> & bt,const SrcPos & p,
+                              py_val_t * a){
+    // thread_start(<function>, <tuple as arguments>)
+
+    py_val_t thread = Py_val::mk_thread(a[0]);
+
+    Py_thread_args * args = new Py_thread_args();
+    args->th = thread->u.th;
+    args->strace = &bt;
+    args->pos = &p;
+    args->args = new py_val_t[a[1]->u.nl->size()];
+
+    for(uint i = 0; i < a[1]->u.nl->size();i++){
+        args->args[i] = a[1]->u.nl->get(i);
+    }
+    
+    if (Py_val::is_vfun(a[0])){
+        if (pthread_create(&thread->u.th->th
+                           , NULL
+                           , thread_vfun_dispatch
+                           , args) != 0) {
+            runtime_error(bt, p,
+                          "thread error: cannot create thread");
+        }
+    } else if (Py_val::is_nfun(a[0])) {
+        if (pthread_create(&thread->u.th->th
+                           , NULL
+                           , thread_nfun_dispatch
+                           , args) != 0) {
+            runtime_error(bt, p,
+                          "thread error: cannot create thread");
+        }
+    }
+    
+    return thread;
+}
+
+void * native::thread_nfun_dispatch(void * a){
+    Py_thread_args * args = static_cast<Py_thread_args*>(a);
+
+    args->th->func->u.n->f(*args->strace, *args->pos, args->args);
+    
+    delete(args);
+
+    return 0;
+}
+
+void * native::thread_vfun_dispatch(void * a){
+
+    Py_thread_args * args = static_cast<Py_thread_args*>(a);
+
+
+    delete(args);
+
+    return 0;
+}
+
+py_val_t native::thread_join(stack<Stack_trace_entry> & bt,const SrcPos & p,
+                             py_val_t * a){
+    // thread_join(<thread>)
+
+    return NULL;
+}

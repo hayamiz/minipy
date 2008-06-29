@@ -7,11 +7,6 @@ int main(int argc, char * argv[]){
         exit(1);
     }
 
-    vector<string> args;
-    for (int i = 1; i < argc; i++){
-        args.push_back(argv[i]);
-    }
-
     Tivi tivi;
 
     tivi.load_file(argv[1]);

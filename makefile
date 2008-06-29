@@ -5,6 +5,8 @@ VMOBJ_FILES = char_stream.o tokenizer.o parser.o syntax_tree.o symbol.o env.o py
 
 TEST_OBJ_FILES = tests/testRunner.o
 
+LIBS = -lpthread
+
 # CPP_FLAGS = -g -Wall -fno-default-inline -pg
 CPP_FLAGS = -g -Wall -fno-default-inline
 # CPP_FLAGS = -Wall -O3 -g -DRELEASE_BUILD
@@ -14,7 +16,7 @@ all:
 	make vmpy
 
 minipy: ${OBJ_FILES} minipy.o
-	g++ ${CPP_FLAGS} ${OBJ_FILES} minipy.o -o minipy
+	g++ ${CPP_FLAGS} ${OBJ_FILES} minipy.o -o minipy ${LIBS}
 	@echo "Compile \(^O^)/ OK"
 
 # bootstrap.inc : etc/gen_bootstrap.rb
@@ -24,7 +26,7 @@ minipy.o : minipy.cpp minipy.hpp bootstrap.inc
 	g++ ${CPP_FLAGS} -c $<
 
 vmpy : ${VMOBJ_FILES} vminsns.o translator.o printer.o tivi.o vmpy.o 
-	g++ ${CPP_FLAGS} -o vmpy ${VMOBJ_FILES} vmpy.o printer.o vminsns.o translator.o tivi.o
+	g++ ${CPP_FLAGS} -o vmpy ${LIBS} ${VMOBJ_FILES} vmpy.o printer.o vminsns.o translator.o tivi.o
 
 dispatchtable.inc : etc/vmcodegen.lisp
 	./etc/vmcodegen.lisp dispatchtable 2> /dev/null 1> dispatchtable.inc
@@ -56,13 +58,13 @@ test :
 	make test_run
 
 test_parser: test_parser.cpp test_parser.hpp ${OBJ_FILES} printer.o
-	g++ ${CPP_FLAGS} test_parser.cpp ${OBJ_FILES} printer.o -o test_parser
+	g++ ${CPP_FLAGS} test_parser.cpp ${OBJ_FILES} printer.o -o test_parser ${LIBS}
 
 test_tokenizer: test_tokenizer.cpp test_tokenizer.hpp ${OBJ_FILES}
-	g++ ${CPP_FLAGS} test_tokenizer.cpp ${OBJ_FILES} -o test_tokenizer
+	g++ ${CPP_FLAGS} test_tokenizer.cpp ${OBJ_FILES} -o test_tokenizer ${LIBS}
 
 test_run: vmpy minipy
-	for file in `find testdata-parser/simple testdata-parser/basics/ -name "*.py"`; do echo $$file; ./vmpy $$file | diff - $$file.right; done
+	for file in `find testdata-parser/simple testdata-parser/basics/ -name "*.py"`; do echo $$file; ./vmpy $$file | diff - $$file.right && perl -e "print ' ' x 60;"&& echo "[ \(^O^)/ success ]"; done
 
 test_pyvalues:
 	make pyvalues.o

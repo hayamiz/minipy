@@ -955,6 +955,23 @@ py_val_t Py_val::mk_vm_ifun(const symbol_t name, int arity, int locals, int addr
     return ret;
 }
 
+py_val_t Py_val::mk_thread(py_val_t func){
+    py_val_t ret;
+    
+    if (Py_val::is_ifun(func)
+        || Py_val::is_vfun(func)
+        || Py_val::is_nfun(func)){
+
+        ret = Py_val::alloc_boxed(py_type_thread);
+        Py_thread * th = new Py_thread(func);
+        ret->u.th = th;
+
+    } else {
+        cerr << "never reaches here at " << __FILE__ << ":" << __LINE__; exit(1);
+    }
+    return ret;
+}
+
 
 /*
  * 辞書式!
@@ -1172,4 +1189,12 @@ py_val_t Py_tuple::get(unsigned int index){
 
 unsigned int Py_tuple::size(){
     return this->size_;
+}
+
+Py_thread::Py_thread(py_val_t func){
+    this->func = func;
+}
+
+Py_thread::~Py_thread(){
+
 }
