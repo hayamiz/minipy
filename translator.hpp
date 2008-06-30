@@ -1,6 +1,8 @@
 #ifndef TRANSLATOR_HPP
 #define TRANSLATOR_HPP
 
+class Translator;
+
 #include <string>
 #include <queue>
 #include "syntax_tree.hpp"

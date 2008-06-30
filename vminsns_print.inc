@@ -216,5 +216,11 @@
         case VM_PRINTSTR:
             printf("%4d: VM_PRINTSTR() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
             break;
+        case VM_THREAD_FORK:
+            printf("%4d: VM_THREAD_FORK() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
+            break;
+        case VM_THREAD_JOIN:
+            printf("%4d: VM_THREAD_JOIN() --%s@%d\n", i , (*itr).p->filename.c_str(), (*itr).p->line_no);
+            break;
         }
     }

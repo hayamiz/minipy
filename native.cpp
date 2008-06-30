@@ -2,64 +2,64 @@
 #include "native.hpp"
 // dictのキー：値リストって何返せばいいんだろう。
 
-py_val_t native::is_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::is_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){
     return Py_val::mk_int(Py_val::is_int(a[0]));
 }
 
-py_val_t native::is_float(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::is_float(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){
     return Py_val::mk_int(Py_val::is_float(a[0]));
 }
 
-py_val_t native::is_string(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::is_string(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                           py_val_t * a){
     return Py_val::mk_int(Py_val::is_char(a[0]) || Py_val::is_string(a[0]));
 }
 
-py_val_t native::is_dict(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::is_dict(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){
     return Py_val::mk_int(Py_val::is_dict(a[0]));
 }
 
-py_val_t native::is_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::is_list(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){
     return Py_val::mk_int(Py_val::is_list(a[0]));
 }
 
-py_val_t native::is_tuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::is_tuple(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                           py_val_t * a){
     return Py_val::mk_int(Py_val::is_tuple(a[0]));
 }
 
-py_val_t native::is_ifun(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::is_ifun(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){
     return Py_val::mk_int(Py_val::is_ifun(a[0]));
 }
 
-py_val_t native::is_nfun(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::is_nfun(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){
     return Py_val::mk_int(Py_val::is_nfun(a[0]));
 }
 
 
 /* 整数同士の演算に限定した各種演算子 */
-py_val_t native::add_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::add_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){     // +
     return Py_val::mk_int(getint(a[0]) + getint(a[1]));
 }
 
-py_val_t native::sub_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::sub_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){     // -
     return Py_val::mk_int(getint(a[0]) - getint(a[1]));
 }
     
-py_val_t native::mul_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::mul_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){     // *
     return Py_val::mk_int(getint(a[0]) * getint(a[1]));
 }
 
-py_val_t native::div_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::div_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){     // /
     if(getint(a[1]) == 0){
         runtime_error(bt, p,
@@ -68,7 +68,7 @@ py_val_t native::div_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return Py_val::mk_int((int)(getint(a[0]) / getint(a[1])));
 }
 
-py_val_t native::mod_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::mod_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){     // %
     if(Py_val::get_int(a[1],bt,p) == 0){
         runtime_error(bt, p,
@@ -78,43 +78,43 @@ py_val_t native::mod_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
                           % Py_val::get_int(a[1],bt,p));
 }
 
-py_val_t native::invert_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::invert_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                             py_val_t * a){  // ~
     return Py_val::mk_int((-1 * Py_val::get_int(a[0],bt,p))-1);
 }
 
-py_val_t native::and_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::and_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){     // &
     return Py_val::mk_int(Py_val::get_int(a[0],bt,p)
                           &Py_val::get_int(a[1],bt,p));
 }
 
-py_val_t native::or_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::or_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                        py_val_t * a){      // |
     return Py_val::mk_int(Py_val::get_int(a[0],bt,p)
                           | Py_val::get_int(a[1],bt,p));
 }
 
-py_val_t native::xor_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::xor_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){     // ^
     return Py_val::mk_int((int)(Py_val::get_int(a[0],bt,p)
                                 ^ Py_val::get_int(a[1],bt,p)));
 }
 
-py_val_t native::lshift_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::lshift_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                            py_val_t * a){  // <<
     return Py_val::mk_int((int)(Py_val::get_int(a[0],bt,p)
                                 << Py_val::get_int(a[1],bt,p)));
 }
 
-py_val_t native::rshift_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::rshift_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                            py_val_t * a){  // >>
     return Py_val::mk_int((int)(Py_val::get_int(a[0],bt,p)
                                 >> Py_val::get_int(a[1],bt,p)));
 }
 
 
-py_val_t native::prefix_sub(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::prefix_sub(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                             py_val_t * a){  // +や-のprefix処理
     if (Py_val::is_int(a[0])){
         return Py_val::mk_int(getint(a[0]) * -1);
@@ -128,22 +128,22 @@ py_val_t native::prefix_sub(stack<Stack_trace_entry> & bt,const SrcPos & p,
 
 
 /* 浮動小数点数同士の演算に限定した各種演算 */
-py_val_t native::add_float(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::add_float(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                           py_val_t * a){     // +
     return Py_val::mk_float(getfloat(a[0]) + getfloat(a[1]));
 }
 
-py_val_t native::sub_float(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::sub_float(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                           py_val_t * a){     // -
     return Py_val::mk_float(getfloat(a[0]) - getfloat(a[1]));
 }
 
-py_val_t native::mul_float(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::mul_float(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                           py_val_t * a){     // *
     return Py_val::mk_float(getfloat(a[0]) * getfloat(a[1]));
 }
 
-py_val_t native::div_float(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::div_float(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                           py_val_t * a){     // /
     if(getfloat(a[1]) == 0.0){
         //error:div0
@@ -153,7 +153,7 @@ py_val_t native::div_float(stack<Stack_trace_entry> & bt,const SrcPos & p,
 }
 
 /* 文字列の演算子 */
-py_val_t native::len_string(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::len_string(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                             py_val_t * a){ // 文字列の長さ
     if (Py_val::is_char(a[0])){
         return Py_val::mk_int(1);
@@ -164,7 +164,7 @@ py_val_t native::len_string(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return NULL;
 }
 
-py_val_t native::getitem_string(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::getitem_string(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                                 py_val_t * a){ // sのi番めの要素
     // string はstring[0]から始まる.iは-size〜size-1とする
     // Python氏は-1とかいうインデックスを後ろから１番めのものを返すぽい
@@ -200,7 +200,7 @@ py_val_t native::getitem_string(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return ret;
 }
 
-py_val_t native::add_string(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::add_string(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                             py_val_t * a){ //sとtの結合
     stringstream ss;
     if (Py_val::is_char(a[0])){
@@ -218,7 +218,7 @@ py_val_t native::add_string(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return  Py_val::mk_string(ss.str());
 }
 
-py_val_t native::mul_string(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::mul_string(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                             py_val_t * a){ //sとtの結合
     stringstream ss;
     if (!( ( (Py_val::is_string(a[0]) || Py_val::is_char(a[0]))
@@ -248,7 +248,7 @@ py_val_t native::mul_string(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return Py_val::mk_string(ss.str());
 }
 
-py_val_t native::eq_string(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::eq_string(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                    py_val_t * a){
     if (Py_val::is_char(a[0])){
         if (Py_val::is_char(a[1])){
@@ -276,12 +276,12 @@ py_val_t native::eq_string(stack<Stack_trace_entry> & bt,const SrcPos & p,
 }
     
 /* タプルの演算子 */
-py_val_t native::len_tuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::len_tuple(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                            py_val_t * a){ // タプルの長さ
     return  Py_val::mk_int(Py_val::get_tuple(a[0],bt,p)->size());
 }
 
-py_val_t native::getitem_tuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::getitem_tuple(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                                py_val_t * a){ // tのi番めの要素
     // tupleもstringに同じ
     vector<py_val_t> * tmp_vec = Py_val::get_tuple(a[0],bt,p);
@@ -302,7 +302,7 @@ py_val_t native::getitem_tuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return ret;
 }
 
-py_val_t native::add_tuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::add_tuple(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                            py_val_t * a){ //tとuの結合
     vector<py_val_t> * tmp_t = Py_val::get_tuple(a[0],bt,p);
     vector<py_val_t> * tmp_u = Py_val::get_tuple(a[1],bt,p);
@@ -312,7 +312,7 @@ py_val_t native::add_tuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return Py_val::mk_tuple_byptr(newtuple);
 }
 
-py_val_t native::mul_tuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::mul_tuple(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                            py_val_t * a){
     vector<py_val_t> * tup1 = Py_val::get_tuple(a[0],bt,p);
     vector<py_val_t> * tup_ret = new vector<py_val_t>;
@@ -326,7 +326,7 @@ py_val_t native::mul_tuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
 
 
 
-py_val_t native::hasitem_tuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::hasitem_tuple(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                        py_val_t * a){ //kがtにあるか？
     vector<py_val_t>::iterator it;
     vector<py_val_t> * tmp_t = Py_val::get_tuple(a[0],bt,p);
@@ -343,11 +343,11 @@ py_val_t native::hasitem_tuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
 }
 
 
-py_val_t native::len_newtuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::len_newtuple(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                               py_val_t * a){ // タプルの長さ
     return mkint(a[0]->u.nl->size());
 }
-py_val_t native::getitem_newtuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::getitem_newtuple(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                                   py_val_t * a){ // tのi番めの要素
     // tupleもstringに同じ
     Py_tuple * tup = getnewtuple(a[0]);
@@ -367,7 +367,7 @@ py_val_t native::getitem_newtuple(stack<Stack_trace_entry> & bt,const SrcPos & p
 
     return ret;
 }
-py_val_t native::add_newtuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::add_newtuple(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                               py_val_t * a){ //tとuの結合
     Py_tuple * tup1 = getnewtuple(a[0]);
     Py_tuple * tup2 = getnewtuple(a[1]);
@@ -376,10 +376,10 @@ py_val_t native::add_newtuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
     tup->append(tup1); tup->append(tup2);
     return Py_val::mk_newtuple(tup);
 }
-py_val_t native::mul_newtuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::mul_newtuple(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                       py_val_t * a); //t*number
 
-py_val_t native::hasitem_newtuple(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::hasitem_newtuple(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                                   py_val_t * a){ //kがtにあるか？a=(t,k)
     Py_tuple * tup = getnewtuple(a[0]);
 
@@ -394,12 +394,12 @@ py_val_t native::hasitem_newtuple(stack<Stack_trace_entry> & bt,const SrcPos & p
 
 
 /* リストの演算子 */
-py_val_t native::len_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::len_list(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                           py_val_t * a){ // リストの長さ
     return  Py_val::mk_int(Py_val::get_list(a[0],bt,p)->size());
 }
 
-py_val_t native::getitem_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::getitem_list(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                               py_val_t * a){ // lのi番めの要素
     // listもstringに同じ
     vector<py_val_t> * tmp_vec = Py_val::get_list(a[0],bt,p);
@@ -420,7 +420,7 @@ py_val_t native::getitem_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return ret;
 }
 
-py_val_t native::setitem_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::setitem_list(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                               py_val_t * a){ //lのi番目をxにする
 // listもstringに同じ // l/i/xの順
     vector<py_val_t> * tmp_l = Py_val::get_list(a[0],bt,p);
@@ -444,7 +444,7 @@ py_val_t native::setitem_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return Py_val::mk_list_byptr(tmp_l);
 }
 
-py_val_t native::delitem_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::delitem_list(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                               py_val_t * a){ //lのi番目を削除
     // listもstringに同じ
     vector<py_val_t> * tmp_l = Py_val::get_list(a[0],bt,p);
@@ -464,7 +464,7 @@ py_val_t native::delitem_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return Py_val::mk_list_byptr(tmp_l);
 }
 
-py_val_t native::pop_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::pop_list(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                           py_val_t * a){ //lのi番目を削除＆値を返す
     // listもstringに同じ
     vector<py_val_t> * tmp_l = Py_val::get_list(a[0],bt,p);
@@ -487,7 +487,7 @@ py_val_t native::pop_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return tmp_item;
 }
 
-py_val_t native::hasitem_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::hasitem_list(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                        py_val_t * a){ //kがtにあるか？
     vector<py_val_t>::iterator it;
     vector<py_val_t> * tmp_l = Py_val::get_list(a[0],bt,p);
@@ -503,7 +503,7 @@ py_val_t native::hasitem_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return Py_val::mk_int(0);
 }
 
-py_val_t native::mul_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::mul_list(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                        py_val_t * a){ //l*number
     vector<py_val_t> * list1 = Py_val::get_list(a[0],bt,p);
     vector<py_val_t> * list_ret = new vector<py_val_t>();
@@ -518,12 +518,12 @@ py_val_t native::mul_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
 
 
 /* 辞書の演算子 */
-py_val_t native::len_dict(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::len_dict(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                           py_val_t * a){ //dの要素数
     return  Py_val::mk_int(a[0]->u.nd->size());
 }
 
-py_val_t native::has_key(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::has_key(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){ // Keyがdにq存在するか
     if (!Py_val::is_newdict(a[0])){
         runtime_error(bt,p, "type error : has_key requires dictionary");
@@ -532,7 +532,7 @@ py_val_t native::has_key(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return getnewdict(a[0])->has_key(a[1], bt, p);
 }
 
-py_val_t native::getitem_dict(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::getitem_dict(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                               py_val_t * a){ // Keyに対する値
     if (!Py_val::is_dict(a[0])){
         runtime_error(bt,p, "type error : getitem_dict requires dictionary");
@@ -557,7 +557,7 @@ py_val_t native::getitem_dict(stack<Stack_trace_entry> & bt,const SrcPos & p,
 //     return NULL;
 }
 
-py_val_t native::setitem_dict(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::setitem_dict(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                               py_val_t * a){ 
 //     // Keyに対する値をxに
      if (!Py_val::is_newdict(a[0])){
@@ -587,7 +587,7 @@ py_val_t native::setitem_dict(stack<Stack_trace_entry> & bt,const SrcPos & p,
 //     return a[0];
 }
 
-py_val_t native::delitem_dict(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::delitem_dict(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                               py_val_t * a){ //Keyに対する値を削除
     if (!Py_val::is_newdict(a[0])){
         runtime_error(bt,p, "type error : setitem_dict requires dictionary");
@@ -612,7 +612,7 @@ py_val_t native::delitem_dict(stack<Stack_trace_entry> & bt,const SrcPos & p,
 //     return Py_val::mk_int(0);
 }
 
-py_val_t native::keys(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::keys(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                           py_val_t * a){ // すべてのKeyリスト
 //     vector<Py_dict_entry*> * tmp_d = Py_val::get_dict(a[0],bt,p);
 //     vector<py_val_t> tmp_l;
@@ -624,7 +624,7 @@ py_val_t native::keys(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return getnewdict(a[0])->get_keys(bt, p);
 }
 
-py_val_t native::values(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::values(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                              py_val_t * a){ // すべての値リスト
 //     vector<Py_dict_entry*> * tmp_d = Py_val::get_dict(a[0],bt,p);
 //     vector<py_val_t> tmp_l;
@@ -636,7 +636,7 @@ py_val_t native::values(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return getnewdict(a[0])->get_values(bt, p);
 }
 
-py_val_t native::items(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::items(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                             py_val_t * a){ // すべてのKey:値のリスト
     vector<py_val_t>::iterator it;
     vector<py_val_t> * keys = getlist(getnewdict(a[0])->get_keys(bt, p));
@@ -654,14 +654,14 @@ py_val_t native::items(stack<Stack_trace_entry> & bt,const SrcPos & p,
 
 
 /* 各種値を文字列に変換する関数群 */
-py_val_t native::repr_int(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::repr_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                           py_val_t * a){
     char tmp[10];
     sprintf(tmp, "%d", Py_val::get_int(a[0],bt,p));
     return Py_val::mk_string(tmp);
 }
 
-py_val_t native::repr_float(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::repr_float(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                             py_val_t * a){
     //静的嫌がらせを受けている気がする…
     ostringstream os;
@@ -669,18 +669,18 @@ py_val_t native::repr_float(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return Py_val::mk_string(os.str());
 }
 
-py_val_t native::repr_ifun(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::repr_ifun(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                            py_val_t * a){
     return Py_val::mk_string( *Py_val::get_ifun_name(a[0],bt,p));
 }
 
-py_val_t native::repr_nfun(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::repr_nfun(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                            py_val_t * a){
     return Py_val::mk_string( *Py_val::get_nfun_name(a[0],bt,p));
 }
 
 
-py_val_t native::print_(stack<Stack_trace_entry> & bt, const SrcPos & p,
+py_val_t native::print_(ConsStack<Stack_trace_entry*> * bt, const SrcPos & p,
                         py_val_t * a){
     stringstream ss;
     if (Py_val::is_string(a[0])){
@@ -695,7 +695,7 @@ py_val_t native::print_(stack<Stack_trace_entry> & bt, const SrcPos & p,
 }
 
 
-py_val_t native::dprint(stack<Stack_trace_entry> & bt, const SrcPos & p,
+py_val_t native::dprint(ConsStack<Stack_trace_entry*> * bt, const SrcPos & p,
                         py_val_t * a){
     stringstream ss;
     if (Py_val::is_string(a[0])){
@@ -715,7 +715,7 @@ py_val_t native::dprint(stack<Stack_trace_entry> & bt, const SrcPos & p,
     return Py_val::mk_none();
 }
 
-py_val_t native::print_string(stack<Stack_trace_entry> & bt
+py_val_t native::print_string(ConsStack<Stack_trace_entry*> * bt
                               , const SrcPos & p, py_val_t * a){
     if (Py_val::is_string(a[0])){
         cout << *Py_val::get_string(a[0], bt, p);
@@ -728,7 +728,7 @@ py_val_t native::print_string(stack<Stack_trace_entry> & bt
 }
 
 /*-------------- 演算子 ---------------*/
-py_val_t native::add(stack<Stack_trace_entry> & bt, const SrcPos & p,
+py_val_t native::add(ConsStack<Stack_trace_entry*> * bt, const SrcPos & p,
                      py_val_t * a){
     if(Py_val::is_int(a[0])){
         if(Py_val::is_int(a[1])){
@@ -777,7 +777,7 @@ py_val_t native::add(stack<Stack_trace_entry> & bt, const SrcPos & p,
     return py_val_none;
 }
 
-py_val_t native::prefix_add(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::prefix_add(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                             py_val_t * a){
     if(!(Py_val::is_int(a[0]) || Py_val::is_float(a[0]))){
         runtime_error(bt, p, "type error : cannot prefix_add");
@@ -785,7 +785,7 @@ py_val_t native::prefix_add(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return a[0];
 }
 
-py_val_t native::sub(stack<Stack_trace_entry> & bt, const SrcPos & p,
+py_val_t native::sub(ConsStack<Stack_trace_entry*> * bt, const SrcPos & p,
                      py_val_t * a){
     if(Py_val::is_int(a[0])){
         if(Py_val::is_int(a[1])){
@@ -807,7 +807,7 @@ py_val_t native::sub(stack<Stack_trace_entry> & bt, const SrcPos & p,
     return NULL;
 }
 
-py_val_t native::mul(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::mul(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
              py_val_t * a){
     py_val_t ret = NULL;
 
@@ -889,7 +889,7 @@ py_val_t native::mul(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return ret;
 }
 
-py_val_t native::div(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::div(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
              py_val_t * a){
     
     if (Py_val::is_int(a[0])){
@@ -918,7 +918,7 @@ py_val_t native::div(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return NULL;
 }
     
-py_val_t native::mod(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::mod(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                      py_val_t * a){
     if (Py_val::is_int(a[0]) && Py_val::is_int(a[1])){
         return native::mod_int(bt, p, a);
@@ -945,7 +945,7 @@ py_val_t native::mod(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return NULL;
 }
 
-py_val_t native::invert(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::invert(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){
     if(!(Py_val::is_int(a[0]))){
         runtime_error(bt, p, "type error: ~ required int");
@@ -953,7 +953,7 @@ py_val_t native::invert(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return native::invert_int(bt,p,a);
 }
 
-py_val_t native::lshift(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::lshift(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){
     if(!(Py_val::is_int(a[0]) || Py_val::is_int(a[1]))){
         runtime_error(bt, p, "type error: << required int");
@@ -961,7 +961,7 @@ py_val_t native::lshift(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return native::lshift_int(bt,p,a);
 }
 
-py_val_t native::rshift(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::rshift(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){
     if(!(Py_val::is_int(a[0]) || Py_val::is_int(a[1]))){
         runtime_error(bt, p, "type error: << required int");
@@ -969,7 +969,7 @@ py_val_t native::rshift(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return native::rshift_int(bt,p,a);
 }
 
-py_val_t native::and_(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::and_(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){
     if (!(Py_val::is_int(a[0]) || Py_val::is_int(a[1]))){
         runtime_error(bt, p, "type error: & required int");
@@ -977,7 +977,7 @@ py_val_t native::and_(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return native::and_int(bt,p,a);
 }
 
-py_val_t native::or_(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::or_(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){
     if (!(Py_val::is_int(a[0]) || Py_val::is_int(a[1]))){
         runtime_error(bt, p, "type error: | required int");
@@ -985,7 +985,7 @@ py_val_t native::or_(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return native::or_int(bt,p,a);;
 }
 
-py_val_t native::xor_(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::xor_(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){
     if(!(Py_val::is_int(a[0]) || Py_val::is_int(a[1]))){
         runtime_error(bt, p, "type error: ^ required int");
@@ -993,7 +993,7 @@ py_val_t native::xor_(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return  native::xor_int(bt,p,a);
 }
 
-py_val_t native::contains(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::contains(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){
     py_val_t ret;
 
@@ -1014,7 +1014,7 @@ py_val_t native::contains(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return ret;
 }
 
-py_val_t native::not_contains(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::not_contains(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){
     if(Py_val::is_false( native::contains(bt, p, a))){
         return mkint(1);
@@ -1025,7 +1025,7 @@ py_val_t native::not_contains(stack<Stack_trace_entry> & bt,const SrcPos & p,
 
 
 
-py_val_t native::not_(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::not_(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                       py_val_t * a){
     py_val_t ret;
     if (Py_val::is_false(a[0])) {
@@ -1036,7 +1036,7 @@ py_val_t native::not_(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return ret;
 }
 
-py_val_t native::ntv_is(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::ntv_is(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                         py_val_t * a){
      py_val_t ret;
      
@@ -1059,7 +1059,7 @@ py_val_t native::ntv_is(stack<Stack_trace_entry> & bt,const SrcPos & p,
      return ret;
 }
 
-py_val_t native::ntv_is_not(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::ntv_is_not(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                             py_val_t * a){
      py_val_t ret;
      if (Py_val::is_false(native::ntv_is(bt,p,a))){
@@ -1070,7 +1070,7 @@ py_val_t native::ntv_is_not(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return ret;
 }
 
-py_val_t native::cmp(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::cmp(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                       py_val_t * a){
     int ret = Py_val::compare(a[0], a[1]);
     if (ret > 0){
@@ -1081,7 +1081,7 @@ py_val_t native::cmp(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return mkint(0);
 }
 
-py_val_t native::eq(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::eq(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                       py_val_t * a){
     if (Py_val::compare(a[0], a[1]) == 0){
         return mkint(1);
@@ -1089,7 +1089,7 @@ py_val_t native::eq(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return mkint(0);
 }
 
-py_val_t native::ne(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::ne(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                     py_val_t * a){
     if (Py_val::compare(a[0], a[1]) == 0){
         return mkint(0);
@@ -1097,7 +1097,7 @@ py_val_t native::ne(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return mkint(1);
 }
 
-py_val_t native::gt(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::gt(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                       py_val_t * a){
     if (Py_val::compare(a[0], a[1]) > 0){
         return mkint(1);
@@ -1105,7 +1105,7 @@ py_val_t native::gt(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return mkint(0);
 }
 
-py_val_t native::lt(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::lt(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                       py_val_t * a){
     if (Py_val::compare(a[0], a[1]) < 0){
         return mkint(1);
@@ -1113,7 +1113,7 @@ py_val_t native::lt(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return mkint(0);
 }
 
-py_val_t native::ge(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::ge(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                       py_val_t * a){
     if (Py_val::compare(a[0], a[1]) >= 0){
         return mkint(1);
@@ -1121,7 +1121,7 @@ py_val_t native::ge(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return mkint(0);
 }
 
-py_val_t native::le(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::le(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                       py_val_t * a){
     if (Py_val::compare(a[0], a[1]) <= 0){
         return mkint(1);
@@ -1130,13 +1130,13 @@ py_val_t native::le(stack<Stack_trace_entry> & bt,const SrcPos & p,
 }
 
 
-py_val_t native::eq_pointer(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::eq_pointer(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                             py_val_t * a){ //a is b _?
     return Py_val::mk_int(a[0] == a[1]);
 }
 
 
-py_val_t native::getitem(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::getitem(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){
     py_val_t ret = NULL;
     
@@ -1166,7 +1166,7 @@ py_val_t native::getitem(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return ret;
 }
 
-py_val_t native::setitem(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::setitem(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){
     py_val_t ret = NULL;
 
@@ -1183,7 +1183,7 @@ py_val_t native::setitem(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return ret;
 }
 
-py_val_t native::delitem(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::delitem(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                          py_val_t * a){
     py_val_t ret = NULL;
 
@@ -1201,7 +1201,7 @@ py_val_t native::delitem(stack<Stack_trace_entry> & bt,const SrcPos & p,
 }
 
 
-py_val_t native::itof(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::itof(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                       py_val_t * a){
     py_val_t ret;
     if (!Py_val::is_int(a[0])){
@@ -1212,7 +1212,7 @@ py_val_t native::itof(stack<Stack_trace_entry> & bt,const SrcPos & p,
 }
 
 
-py_val_t native::str(stack<Stack_trace_entry> & bt, const SrcPos & p,
+py_val_t native::str(ConsStack<Stack_trace_entry*> * bt, const SrcPos & p,
                      py_val_t * a){
     stringstream ss;
     if (Py_val::is_string(a[0])){
@@ -1223,7 +1223,7 @@ py_val_t native::str(stack<Stack_trace_entry> & bt, const SrcPos & p,
     }
 }
 
-py_val_t native::replace_string(stack<Stack_trace_entry> & bt, const SrcPos & p,
+py_val_t native::replace_string(ConsStack<Stack_trace_entry*> * bt, const SrcPos & p,
                      py_val_t * a){
 
     string tmp_s = *Py_val::get_string(a[0], bt, p);
@@ -1306,7 +1306,7 @@ py_val_t native::replace_string(stack<Stack_trace_entry> & bt, const SrcPos & p,
 
 
 /* 文字列・リスト・辞書・タプルに共通関数 */
-py_val_t native::len(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::len(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                      py_val_t * a){
     
     if(Py_val::is_char(a[0])){
@@ -1344,7 +1344,7 @@ py_val_t native::len(stack<Stack_trace_entry> & bt,const SrcPos & p,
 
 
 /* リスト用ユーティリティ関数 */
-py_val_t native::append(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::append(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                 py_val_t * a){
     if (Py_val::is_list(a[0])){
         a[0]->u.l->push_back(a[1]);
@@ -1355,7 +1355,7 @@ py_val_t native::append(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return py_val_none;
 }
 
-py_val_t native::add_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::add_list(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                           py_val_t * a){
     if (!Py_val::is_list(a[0]) || !Py_val::is_list(a[1])){
         runtime_error(bt, p, "type error: list required.");
@@ -1368,7 +1368,7 @@ py_val_t native::add_list(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return Py_val::mk_list_byptr(newlst);
 }
 
-py_val_t native::range(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::range(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                        py_val_t * a){
     vector<py_val_t> * ls = new vector<py_val_t>();
     int tmp1, tmp2;
@@ -1437,7 +1437,7 @@ py_val_t native::range(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return NULL;
 }
 
-py_val_t native::pop(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::pop(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                      py_val_t * a){
     py_val_t ret = NULL;
     vector<py_val_t> * vec;
@@ -1494,7 +1494,7 @@ py_val_t native::pop(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return ret;
 }
 
-py_val_t native::ntv_random(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::ntv_random(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                             py_val_t * a){
     py_val_t ret = NULL;
 
@@ -1503,7 +1503,7 @@ py_val_t native::ntv_random(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return ret;
 }
 
-py_val_t native::sys_sleep(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::sys_sleep(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                             py_val_t * a){
     py_val_t ret = NULL;
 
@@ -1512,7 +1512,7 @@ py_val_t native::sys_sleep(stack<Stack_trace_entry> & bt,const SrcPos & p,
     return ret;
 }
 
-py_val_t native::thread_start(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::thread_start(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                               py_val_t * a){
     // thread_start(<function>, <tuple as arguments>)
 
@@ -1520,7 +1520,7 @@ py_val_t native::thread_start(stack<Stack_trace_entry> & bt,const SrcPos & p,
 
     Py_thread_args * args = new Py_thread_args();
     args->th = thread->u.th;
-    args->strace = &bt;
+    args->strace = bt;
     args->pos = &p;
     args->args = new py_val_t[a[1]->u.nl->size()];
 
@@ -1552,7 +1552,7 @@ py_val_t native::thread_start(stack<Stack_trace_entry> & bt,const SrcPos & p,
 void * native::thread_nfun_dispatch(void * a){
     Py_thread_args * args = static_cast<Py_thread_args*>(a);
 
-    args->th->func->u.n->f(*args->strace, *args->pos, args->args);
+    args->th->func->u.n->f(args->strace, *args->pos, args->args);
     
     delete(args);
 
@@ -1563,13 +1563,12 @@ void * native::thread_vfun_dispatch(void * a){
 
     Py_thread_args * args = static_cast<Py_thread_args*>(a);
 
-
     delete(args);
 
     return 0;
 }
 
-py_val_t native::thread_join(stack<Stack_trace_entry> & bt,const SrcPos & p,
+py_val_t native::thread_join(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
                              py_val_t * a){
     // thread_join(<thread>)
 

@@ -409,6 +409,14 @@ void Translator::insns_val(const Expr & expr, vm_assembler & vmasm, LocalEnv * l
                 this->insns_val(*expr.u.call->args[0], vmasm, lenv);
                 vmasm.PRINTSTR(expr.pos);
                 break;
+            } else if (func == Symbol::get("start_new_thread")){
+                this->insns_push(*expr.u.call->args[0], vmasm, lenv);
+                this->insns_val(*expr.u.call->args[1], vmasm, lenv);
+                vmasm.THREAD_FORK(expr.pos);
+                break;
+            } else if (func == Symbol::get("thread_join")){
+                this->insns_val(*expr.u.call->args[0], vmasm, lenv);
+                vmasm.THREAD_JOIN(expr.pos);
             }
         }
         

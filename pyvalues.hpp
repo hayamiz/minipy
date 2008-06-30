@@ -38,9 +38,9 @@ template <class T>
 class ConsStack {
 private:
     T _car;
-    ConsStack * _cdr;
+    ConsStack<T> * _cdr;
 public:
-    ConsStack(T car, ConsStack * cdr)
+    ConsStack(T car, ConsStack<T> * cdr)
         :_car(car), _cdr(cdr){};
     virtual ~ConsStack(){
         delete(this->_car);
@@ -48,29 +48,32 @@ public:
             delete(this->_cdr);
     };
 
-    ConsStack * pop(){
+    ConsStack<T> * pop(){
         delete(this->_car);
         return this->_cdr;
     };
-
+    
     T car(){
         return this->_car;
     };
-    ConsStack * cdr(){
+    
+    ConsStack<T> cdr(){
         return this->_cdr;
     };
+
+#define CONS_STACK(car, cdr) \
+    new ConsStack<Stack_trace_entry*>(car, cdr)
 };
 
 /* error reporting */
-void print_stack_trace(stack<Stack_trace_entry> & bt );
-static stack<Stack_trace_entry> stack_trace;
-void runtime_error(stack<Stack_trace_entry> & bt, const SrcPos & pos, const string & msg);
+void print_stack_trace(ConsStack<Stack_trace_entry*> * bt );
+void runtime_error(ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos, const string & msg);
 
 /* すべては以下のpy_val_t型のデータ(32bit)として表現する */
 typedef Py_val*  py_val_t;
 typedef map<symbol_t, py_val_t> GlobalEnv;
 
-typedef py_val_t (*C_fun_t)(stack<Stack_trace_entry> &, const SrcPos &,py_val_t *);	/* C関数 */
+typedef py_val_t (*C_fun_t)(ConsStack<Stack_trace_entry*> *, const SrcPos &,py_val_t *);	/* C関数 */
 
 /* Python値の種類を表す定数 */
 typedef enum{
@@ -172,18 +175,18 @@ public:
     /* 型チェックをし、Py_val_tから値を取り出す.
       runtimeエラーを出すのもここです。
      */
-    static int get_int(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos);
-    static char get_char(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos);
-    static double get_float(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos);
-    static string * get_string(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos);
-    static vector<py_val_t> * get_tuple(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos);
-    static vector<py_val_t> * get_list(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos);
-    static Py_tuple * get_newtuple(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos);
-    static vector<Py_dict_entry*> * get_dict(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos);
-    static map<int, vector<Py_dict_entry*> > * get_newdict(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos);
-    static symbol_t get_ifun_name(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos);
-    static symbol_t get_nfun_name(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos);
-    static string get_vm_ifun_name(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos);
+    static int get_int(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos);
+    static char get_char(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos);
+    static double get_float(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos);
+    static string * get_string(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos);
+    static vector<py_val_t> * get_tuple(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos);
+    static vector<py_val_t> * get_list(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos);
+    static Py_tuple * get_newtuple(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos);
+    static vector<Py_dict_entry*> * get_dict(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos);
+    static map<int, vector<Py_dict_entry*> > * get_newdict(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos);
+    static symbol_t get_ifun_name(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos);
+    static symbol_t get_nfun_name(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos);
+    static string get_vm_ifun_name(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos);
 
     static uint hash(py_val_t pyval);
 
@@ -252,8 +255,8 @@ public:
     static int compare_list(py_val_t val1, py_val_t val2);
     static int compare_newtuple(py_val_t val1, py_val_t val2);
     static int compare_newdict(py_val_t val1, py_val_t val2);
-    static void to_str(ostream & ss, py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & p);
-    static void print(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & p);
+    static void to_str(ostream & ss, py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p);
+    static void print(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p);
     
 #define is_boxed(___ptr) (((int)___ptr & 3) == 0)
 };
@@ -316,14 +319,14 @@ public:
     Py_dict();
 
     // 外部API
-    py_val_t set(py_val_t key, py_val_t val, stack<Stack_trace_entry> & bt, const SrcPos & p);
-    py_val_t set_entry(Py_dict_entry * entry, stack<Stack_trace_entry> & bt, const SrcPos & p);
-    py_val_t get(py_val_t key, stack<Stack_trace_entry> & bt, const SrcPos & p);
-    py_val_t del(py_val_t key, stack<Stack_trace_entry> & bt, const SrcPos & p);
-    py_val_t get_values(stack<Stack_trace_entry> & bt, const SrcPos & p);
-    py_val_t get_keys(stack<Stack_trace_entry> & bt, const SrcPos & p);
+    py_val_t set(py_val_t key, py_val_t val, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p);
+    py_val_t set_entry(Py_dict_entry * entry, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p);
+    py_val_t get(py_val_t key, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p);
+    py_val_t del(py_val_t key, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p);
+    py_val_t get_values(ConsStack<Stack_trace_entry*> * bt, const SrcPos & p);
+    py_val_t get_keys(ConsStack<Stack_trace_entry*> * bt, const SrcPos & p);
 
-    py_val_t has_key(py_val_t key, stack<Stack_trace_entry> & bt, const SrcPos & p);
+    py_val_t has_key(py_val_t key, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p);
     int size();
 };
 
@@ -357,9 +360,10 @@ public:
 class Py_thread_args {
 public:
     Py_thread * th;
-    stack<Stack_trace_entry> * strace;
+    ConsStack<Stack_trace_entry*> * strace;
     const SrcPos * pos;
-    py_val_t * args;
+    py_val_t * args; // array of py_val_t
+    void * parent; // Tivi
 };
 
 #endif

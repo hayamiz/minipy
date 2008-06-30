@@ -23,9 +23,12 @@
         (var)[i] = (this->machine_stack[ARGP + i]);                   \
     }
 
-
 Tivi::Tivi(){
     this->machine_stack = new py_val_t[MAX_STACK_SIZE];
+    this->vmasm = new vm_assembler();
+    this->trans = new Translator();
+
+    this->is_thread = false;
     
     SP = 0;
     TIVI_PUSHI(NULL); // frame pointer
@@ -37,6 +40,10 @@ Tivi::Tivi(){
     ENV->up = NULL;
     ENV->argp = 2;
 
+    this->bootstrap();
+}
+
+void Tivi::bootstrap(){
 #include "bootstrap.inc"
 }
 
@@ -48,22 +55,41 @@ void Tivi::load_file(const string & filename){
     Parser parser(filename);
     vector<Stm*> stms = parser.file_input();
 
-    this->trans.compile_file(stms, this->vmasm, this->genv);
+    this->trans->compile_file(stms, *this->vmasm, this->genv);
+
+    // construct genv_rev, and modify byte code to use genv_rev
+    presetup();
+    this->globals = new py_val_t[this->genv.size()];
+    for (uint i = 0; i < this->genv.size();i++){
+        this->globals[i] = this->genv.lookup_sym(this->genv_rev[i]);
+    }
+
+    this->insns_size = this->vmasm->insns.size();
 }
 
-void Tivi::runtime_error(const string & msg, stack<Stack_trace_entry> & bt, int program_counter){
-    SrcPos p = *this->vmasm.insns[PC].p;
+Tivi * Tivi::fork(Tivi * parent){
+    Tivi * ret = new Tivi();
+    ret->globals = parent->globals;
+    ret->genv_rev = parent->genv_rev;
+    ret->insns = parent->insns;
+    ret->insns_size = parent->insns_size;
+
+    return ret;
+}
+
+void Tivi::runtime_error(const string & msg, ConsStack<Stack_trace_entry*> * bt, int program_counter){
+    SrcPos p = *this->vmasm->insns[PC].p;
     cerr << "Tivi runtime error (lifetime: " << lifetime << ") :::" << endl
          << "  " << msg << " at " << p.filename << ":" << p.line_no << endl
          << "----" << endl;
 
-    if (!bt.empty()){
+    if (bt != NULL){
         cerr << "* Backtrace *" << endl;
-        while(!bt.empty()){
-            cerr << "-- " << bt.top().name
-                 << " at " << bt.top().call_site.filename
-                 << ":" << bt.top().call_site.line_no << endl;
-            bt.pop();
+        while(bt != NULL){
+            cerr << "-- " << bt->car()->name
+                 << " at " << bt->car()->call_site.filename
+                 << ":" << bt->car()->call_site.line_no << endl;
+            bt = bt->pop();
         }
     }
     
@@ -71,7 +97,7 @@ void Tivi::runtime_error(const string & msg, stack<Stack_trace_entry> & bt, int 
 }
 
 void Tivi::presetup(){
-    uint size = this->vmasm.insns.size();
+    uint size = this->vmasm->insns.size();
 
     this->insns = new tivi_insn[size];
     this->genv_rev = new symbol_t[this->genv.size()];
@@ -80,7 +106,7 @@ void Tivi::presetup(){
 
     int gvar_index = 0;
     for (uint i = 0; i < size; i++){
-        vm_inst & insn = this->vmasm.insns[i];
+        vm_inst & insn = this->vmasm->insns[i];
         this->insns[i].p = (SrcPos *)insn.p;
         switch (this->insns[i].type = insn.type){
         case VM_GREF:
@@ -106,11 +132,10 @@ void Tivi::presetup(){
 
 
 
-void Tivi::run(int entry_point){
+void Tivi::run(int entry_point, ConsStack<Stack_trace_entry*> * bt){
     srand((unsigned) time(NULL));
 
-    register int pc_limit = vmasm.insns.size();
-    stack<Stack_trace_entry> bt;
+    register int pc_limit = this->insns_size;
     // py_val_t op;
     symbol_t sym;
     int num;
@@ -119,12 +144,6 @@ void Tivi::run(int entry_point){
     register py_val_t f = NULL;
     register int numarg;
 
-    // construct genv_rev, and modify byte code to use genv_rev
-    presetup();
-    this->globals = new py_val_t[this->genv.size()];
-    for (uint i = 0; i < this->genv.size();i++){
-        this->globals[i] = this->genv.lookup_sym(this->genv_rev[i]);
-    }
 
 // #undef __GNUC__
 #ifdef __GNUC__
@@ -691,16 +710,17 @@ main_loop:
             if ((f = TIVI_GREF(TIVI_FETCH_OPERAND())) == py_val_not_found){
                 runtime_error("no such function ", bt, PC);
             }
-            bt.push(Stack_trace_entry(*(symbol_t)vmasm.insns[PC].operand
-                                      , TIVI_FETCH_SRCPOS()));
+            bt = CONS_STACK(new Stack_trace_entry(*(symbol_t)vmasm->insns[PC].operand
+                                      , TIVI_FETCH_SRCPOS())
+                            , bt);
         } else if (INST == VM_VREF_CALL){
             // VREF_CALL means a function to be called is pointed by
             // VAL register
             f = VAL;
             if (f->type == py_type_nfun){
-                bt.push(Stack_trace_entry(*f->u.n->name, TIVI_FETCH_SRCPOS()));
+                bt = CONS_STACK(new Stack_trace_entry(*f->u.n->name, TIVI_FETCH_SRCPOS()), bt);
             } else if (f->type == py_type_vm_ifun){
-                bt.push(Stack_trace_entry(*f->u.vm_i->name, TIVI_FETCH_SRCPOS()));
+                bt = CONS_STACK(new Stack_trace_entry(*f->u.vm_i->name, TIVI_FETCH_SRCPOS()), bt);
             } else {
                 runtime_error("type error : no function object was called.", bt, PC);
             }
@@ -709,9 +729,9 @@ main_loop:
             // a value in stack frame(local variable)
             f = TIVI_LREF((int)TIVI_FETCH_OPERAND());
             if (f->type == py_type_nfun){
-                bt.push(Stack_trace_entry(*f->u.n->name, TIVI_FETCH_SRCPOS()));
+                bt = CONS_STACK(new Stack_trace_entry(*f->u.n->name, TIVI_FETCH_SRCPOS()), bt);
             } else if (f->type == py_type_vm_ifun){
-                bt.push(Stack_trace_entry(*f->u.vm_i->name, TIVI_FETCH_SRCPOS()));
+                bt = CONS_STACK(new Stack_trace_entry(*f->u.vm_i->name, TIVI_FETCH_SRCPOS()), bt);
             } else {
                 runtime_error("type error : no function object was called.", bt, PC);
             }
@@ -719,7 +739,7 @@ main_loop:
             // SELF_CALL means a function to be called is pointed by
             // a operand
             f = TIVI_FETCH_OPERAND();
-            bt.push(Stack_trace_entry(*f->u.vm_i->name, TIVI_FETCH_SRCPOS()));
+            bt = CONS_STACK(new Stack_trace_entry(*f->u.vm_i->name, TIVI_FETCH_SRCPOS()), bt);
         }
 
         switch(f->type){
@@ -736,7 +756,6 @@ main_loop:
             this->return_stack.push(PC+1);
             PC = f->u.vm_i->addr;
             SP += f->u.vm_i->locals; // align SP for local vars
-            bt.pop();
         }
         break;
         case py_type_nfun:
@@ -756,7 +775,7 @@ main_loop:
             SP = ARGP - 2;
             ENV = ENV->up;
 
-            bt.pop();
+            bt = bt->pop();
             TIVI_NEXTI();
         }
         break;
@@ -770,12 +789,18 @@ main_loop:
     {
         // no operand
         if (this->return_stack.size() == 0){
-            runtime_error("no place to return", bt, PC);
+            if (this->is_thread){
+                return;
+            } else {
+                runtime_error("no place to return", bt, PC);
+            }
         }
+        VmEnv * oldenv = ENV;
         ENV = ENV->up;
+        delete(oldenv);
         SP = FP;
         FP = (int)machine_stack[FP];
-
+        
         PC = this->return_stack.top();
         this->return_stack.pop();
         TIVI_NEXT();
@@ -937,6 +962,57 @@ main_loop:
         TIVI_NEXTI();
     }
     BREAK;
+    CASE(VM_THREAD_FORK)
+    {
+        a[1] = VAL;
+        a[0] = TIVI_POP();
+
+        if(!Py_val::is_newtuple(a[1])){
+            runtime_error("thread error: argments must be a tuple", bt ,PC);
+        }
+
+        py_val_t thread = Py_val::mk_thread(a[0]);
+
+        Py_thread_args * args = new Py_thread_args();
+        args->th = thread->u.th;
+        args->strace = new ConsStack<Stack_trace_entry*>(
+            new Stack_trace_entry("--thread--",
+                                  TIVI_FETCH_SRCPOS())
+            , NULL);
+        args->pos = &TIVI_FETCH_SRCPOS();
+        args->args = new py_val_t[a[1]->u.nl->size() + 1];
+        args->parent = this;
+
+        for(uint i = 0; i < a[1]->u.nl->size();i++){
+            args->args[i] = a[1]->u.nl->get(i);
+        }
+        args->args[a[1]->u.nl->size()] = NULL;
+    
+        if (Py_val::is_vfun(a[0])){
+            if (pthread_create(&thread->u.th->th
+                               , NULL
+                               , Tivi::thread_vfun_dispatch
+                               , args) != 0) {
+                runtime_error("thread error: cannot create thread", bt, PC);
+            }
+        } else if (Py_val::is_nfun(a[0])) {
+            if (pthread_create(&thread->u.th->th
+                               , NULL
+                               , Tivi::thread_nfun_dispatch
+                               , args) != 0) {
+                runtime_error("thread error: cannot create thread", bt, PC);
+            }
+        }
+        TIVI_NEXTI();
+    }
+    CASE(VM_THREAD_JOIN){
+
+        a[0] = VAL;
+        pthread_join(a[0]->u.th->th, NULL);
+
+        TIVI_NEXTI();
+    }
+    
     }
 
     goto main_loop;
@@ -952,5 +1028,52 @@ loop_exit:
 }
 
 void Tivi::disasm(){
-    this->vmasm.print(this->genv);
+    this->vmasm->print(this->genv);
+}
+
+void * Tivi::thread_nfun_dispatch(void * a){
+    Py_thread_args * args = static_cast<Py_thread_args*>(a);
+
+    py_val_t f = args->th->func;
+
+    f->u.n->f(CONS_STACK(new Stack_trace_entry(*f->u.n->name
+                                               , *args->pos)
+                         ,args->strace)
+              , *args->pos, args->args);
+    
+    delete(args);
+
+    return 0;
+}
+
+void * Tivi::thread_vfun_dispatch(void * a){
+
+    Py_thread_args * args = static_cast<Py_thread_args*>(a);
+
+    Tivi * vm = Tivi::fork(static_cast<Tivi*>(args->parent));
+
+    vm->is_thread = true;
+
+    // VM_PUSH_ENV
+    vm->machine_stack[vm->stack_pointer++]
+        = (py_val_t)vm->frame_pointer; // static link
+    vm->frame_pointer = vm->stack_pointer - 1;
+    vm->machine_stack[vm->stack_pointer++] = NULL; // debug info will be here.
+    
+    VmEnv * newenv = new VmEnv();
+    newenv->up = vm->env;
+    newenv->argp = vm->stack_pointer;
+    vm->env = newenv;
+
+    for(uint i = 0; args->args[i] != NULL; i++){
+        vm->machine_stack[vm->stack_pointer++] = (py_val_t)args->args[i];
+    }
+
+    vm->stack_pointer += args->th->func->u.vm_i->locals; // align SP for local vars
+
+    vm->run(args->th->func->u.vm_i->addr, args->strace);
+
+    delete(args);
+
+    return 0;
 }

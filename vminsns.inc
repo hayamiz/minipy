@@ -75,9 +75,11 @@ typedef enum {
     VM_DELITEM = 66,
     VM_PRINT = 67,
     VM_PRINTSTR = 68,
+    VM_THREAD_FORK = 69,
+    VM_THREAD_JOIN = 70,
 } vm_insn_type;
 
-#define VM_INSNS_QTY 69
+#define VM_INSNS_QTY 71
 
 
 #define NOP(pos) add(VM_NOP, pos)
@@ -149,3 +151,5 @@ typedef enum {
 #define DELITEM(pos) add(VM_DELITEM, pos)
 #define PRINT(pos) add(VM_PRINT, pos)
 #define PRINTSTR(pos) add(VM_PRINTSTR, pos)
+#define THREAD_FORK(pos) add(VM_THREAD_FORK, pos)
+#define THREAD_JOIN(pos) add(VM_THREAD_JOIN, pos)

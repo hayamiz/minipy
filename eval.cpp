@@ -1,7 +1,7 @@
 #include "eval.hpp"
 //　演算子と添字を呼び出すとき、大域環境しか探してないけどいいかな？
 
-py_val_t Eval::expr(Expr & e, Env & lenv, Env & genv,stack<Stack_trace_entry> & bt){
+py_val_t Eval::expr(Expr & e, Env & lenv, Env & genv,ConsStack<Stack_trace_entry*> * bt){
     
     switch(e.kind){
     case expr_kind_var:		/* 変数 */
@@ -109,9 +109,9 @@ vector<py_val_t> py_vec;
 
             if (f->type == py_type_ifun){
                 // push bt
-                bt.push(Stack_trace_entry(*Py_val::get_ifun_name(f,bt,e.pos),e.pos ));
+                bt = CONS_STACK(new Stack_trace_entry(*Py_val::get_ifun_name(f,bt,e.pos),e.pos ), bt);
             } else if(f->type == py_type_nfun) {
-                bt.push(Stack_trace_entry(*Py_val::get_nfun_name(f,bt,e.pos),e.pos));
+                bt = CONS_STACK(new Stack_trace_entry(*Py_val::get_nfun_name(f,bt,e.pos),e.pos), bt);
             } else {
                 runtime_error(bt, e.pos, "type error (function name) ");
             }
@@ -121,7 +121,7 @@ vector<py_val_t> py_vec;
             }
             args[(int)(e.u.op->args).size()]= NULL;
             py_val_t ret = this->expr_function_call(f,args,e,lenv,genv,bt);
-            bt.pop();
+            bt = bt->pop();
             
             return ret;
         }
@@ -168,9 +168,9 @@ vector<py_val_t> py_vec;
 
         if (f->type == py_type_ifun){
             // push bt
-            bt.push(Stack_trace_entry(*Py_val::get_ifun_name(f,bt,e.pos),e.pos ));
+            bt = CONS_STACK(new Stack_trace_entry(*Py_val::get_ifun_name(f,bt,e.pos),e.pos ), bt);
         } else if(f->type == py_type_nfun) {
-            bt.push(Stack_trace_entry(*Py_val::get_nfun_name(f,bt,e.pos),e.pos));
+            bt = CONS_STACK(new Stack_trace_entry(*Py_val::get_nfun_name(f,bt,e.pos),e.pos), bt);
         } else {
             runtime_error(bt, e.pos, "type error (function name) ");
         }
@@ -190,7 +190,7 @@ vector<py_val_t> py_vec;
         args[(e.u.call->args).size()+num] = NULL;
         // 関数呼び出し。
         py_val_t ret = this->expr_function_call(f,args,e,lenv,genv,bt);
-        bt.pop();// pop bt
+        bt = bt->pop();// pop bt
         return ret;
     }
     break;
@@ -217,7 +217,7 @@ vector<py_val_t> py_vec;
     return 0;
 }
 
-py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,stack<Stack_trace_entry> & bt){
+py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,ConsStack<Stack_trace_entry*> * bt){
     py_val_t ret = (py_val_t)py_val_none; //警告がでるので
     
     switch(s.kind){
@@ -464,7 +464,7 @@ py_val_t Eval::stmt(Stm & s, Env & lenv, Env & genv,stack<Stack_trace_entry> & b
 }
 
 
-py_val_t Eval::file_input(vector<Stm*> & u, Env & genv,stack<Stack_trace_entry> & bt){
+py_val_t Eval::file_input(vector<Stm*> & u, Env & genv,ConsStack<Stack_trace_entry*> * bt){
     vector<Stm*>::iterator it;
     py_val_t tmp = (py_val_t)py_val_none; // ?
     for (it=u.begin(); it< u.end(); it++){
@@ -483,7 +483,7 @@ py_val_t Eval::file_input(vector<Stm*> & u, Env & genv,stack<Stack_trace_entry> 
 
 
 // 関数名にたいして環境から関数を探して引数をもとに評価
-py_val_t Eval::expr_function_call(py_val_t f, py_val_t * args, Expr & e, Env & lenv, Env & genv,stack<Stack_trace_entry> & bt){
+py_val_t Eval::expr_function_call(py_val_t f, py_val_t * args, Expr & e, Env & lenv, Env & genv,ConsStack<Stack_trace_entry*> * bt){
 
     int args_length = 0;
     while( args[args_length] != NULL ){
@@ -519,7 +519,7 @@ py_val_t Eval::expr_function_call(py_val_t f, py_val_t * args, Expr & e, Env & l
     
 }
 
-symbol_t Eval::operator_fun_name(token_kind_t k, fix_kind_t fix,stack<Stack_trace_entry> & bt, SrcPos & p){
+symbol_t Eval::operator_fun_name(token_kind_t k, fix_kind_t fix,ConsStack<Stack_trace_entry*> * bt, SrcPos & p){
     string ret = "";
     switch(k){
     case TOK_KW_NOT:
@@ -609,7 +609,7 @@ symbol_t Eval::operator_fun_name(token_kind_t k, fix_kind_t fix,stack<Stack_trac
     return Symbol::get(ret);
 }
 
-py_val_t Eval::stmt_vec(vector<Stm*> s, Env & lenv, Env & genv, stack<Stack_trace_entry> & bt){
+py_val_t Eval::stmt_vec(vector<Stm*> s, Env & lenv, Env & genv, ConsStack<Stack_trace_entry*> * bt){
     vector<Stm*>::iterator it;
     for (it=s.begin(); it< s.end(); it++){
         py_val_t tmp =this->stmt(**it,lenv,genv,bt);

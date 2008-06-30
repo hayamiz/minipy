@@ -6,30 +6,30 @@ Stack_trace_entry::Stack_trace_entry(const string & n, const SrcPos & pos)
     : name(n), call_site(pos){
 }
 
-void print_stack_trace(stack<Stack_trace_entry> & bt){
+void print_stack_trace(ConsStack<Stack_trace_entry*> * bt){
     string filename, name;
     int line_no;
     //int column_no;
-    while(bt.size() != 0){
-        filename = bt.top().call_site.filename;
-        line_no = bt.top().call_site.line_no;
+    while(bt != NULL){
+        filename = bt->car()->call_site.filename;
+        line_no = bt->car()->call_site.line_no;
         // column_no = bt.top().call_site.column_no;
-        name = bt.top().name;
+        name = bt->car()->name;
 
         cout << filename << ":"
              << line_no << ": "
              << name << endl;
-        bt.pop();
+        bt = bt->pop();
     }
 }
 
-void runtime_error(stack<Stack_trace_entry> & bt, const SrcPos & pos, const string & msg){
+void runtime_error(ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos, const string & msg){
     cout << pos.filename << ":"
          << pos.line_no  << " "
          << "runtime error :::"<< endl;
     cout << "   "<<  msg << endl;
 
-    if(bt.size() > 0){
+    if(bt != NULL){
         cout << "----stack trace----" << endl;
         print_stack_trace(bt);
     }
@@ -300,7 +300,7 @@ int Py_val::compare_newtuple(py_val_t val1, py_val_t val2){
 }
 
 
-void Py_val::to_str(ostream & ss, py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & p){
+void Py_val::to_str(ostream & ss, py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p){
     
     if (Py_val::is_int(pyval)) {
         ss << getint(pyval);
@@ -442,7 +442,7 @@ void Py_val::to_str(ostream & ss, py_val_t pyval, stack<Stack_trace_entry> & bt,
     }
 }
 
-void Py_val::print(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & p){
+void Py_val::print(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p){
 
     if (!is_boxed(pyval)){
         if (Py_val::is_int(pyval)) {
@@ -638,7 +638,7 @@ bool Py_val::is_ifun(py_val_t pyval){
 }
 
 bool Py_val::is_vfun(py_val_t pyval){
-    return is_boxed(pyval) && pyval->type == py_type_ifun;
+    return is_boxed(pyval) && pyval->type == py_type_vm_ifun;
 }
 
 bool Py_val::is_number(py_val_t pyval){
@@ -646,28 +646,28 @@ bool Py_val::is_number(py_val_t pyval){
 }
 
 /* Py_va_tから値を取り出す関数 */
-int Py_val::get_int(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos){
+int Py_val::get_int(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos){
     if (!Py_val::is_int(pyval)) {
         runtime_error(bt, pos, "type error (int)");
     }
     return ((int)pyval) >> 1;
 }
 
-char Py_val::get_char(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos){
+char Py_val::get_char(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos){
     if(!Py_val::is_char(pyval)){
         runtime_error(bt, pos, "type error (char)");
     }
     return (char)(((int)pyval) >> 3);
 }
 
-double Py_val::get_float(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos){
+double Py_val::get_float(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos){
     if (!Py_val::is_float(pyval)) {
         runtime_error(bt, pos, "type error (float)");
     }
     return pyval->u.f;
 }
 
-string * Py_val::get_string(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos){
+string * Py_val::get_string(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos){
     if (!Py_val::is_string(pyval)) {
         runtime_error(bt, pos, "type error (string)");
     }
@@ -675,28 +675,28 @@ string * Py_val::get_string(py_val_t pyval, stack<Stack_trace_entry> & bt, const
     return pyval->u.s; // 保留
 }
 
-vector<py_val_t> * Py_val::get_tuple(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos){
+vector<py_val_t> * Py_val::get_tuple(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos){
     if (!Py_val::is_tuple(pyval)) {
         runtime_error(bt, pos, "type error (tuple)");
     }
     return pyval->u.l;
 }
 
-vector<py_val_t> * Py_val::get_list(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos){
+vector<py_val_t> * Py_val::get_list(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos){
     if (!Py_val::is_list(pyval)) {
         runtime_error(bt, pos, "type error (list)");
     }
     return pyval->u.l;
 }
 
-Py_tuple * Py_val::get_newtuple(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos){
+Py_tuple * Py_val::get_newtuple(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos){
     if (!Py_val::is_newtuple(pyval)) {
         runtime_error(bt, pos, "type error (newtuple)");
     }
     return pyval->u.nl;
 }
 
-vector<Py_dict_entry*> * Py_val::get_dict(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos){
+vector<Py_dict_entry*> * Py_val::get_dict(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos){
     if (!Py_val::is_dict(pyval)) {
         runtime_error(bt, pos, "type error (dictionary)");
     }
@@ -704,13 +704,13 @@ vector<Py_dict_entry*> * Py_val::get_dict(py_val_t pyval, stack<Stack_trace_entr
     return pyval->u.d;
 }
 
-symbol_t Py_val::get_ifun_name(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos){
+symbol_t Py_val::get_ifun_name(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos){
     if (!Py_val::is_ifun(pyval)) {
         runtime_error(bt, pos, "type error (identify function)");
     }
     return pyval->u.i->name;
 }
-symbol_t Py_val::get_nfun_name(py_val_t pyval, stack<Stack_trace_entry> & bt, const SrcPos & pos){
+symbol_t Py_val::get_nfun_name(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos){
     if (!Py_val::is_nfun(pyval)) {
         runtime_error(bt, pos, "type error (native function)");
     }
@@ -896,7 +896,7 @@ py_val_t Py_val::mk_newdict(){
 py_val_t Py_val::mk_newdict(vector<Py_dict_entry*> & d){
     py_val_t ret = Py_val::alloc_boxed(py_type_newdict);
     ret->u.nd = new Py_dict();
-    stack<Stack_trace_entry> bt; SrcPos p; // dummy
+    ConsStack<Stack_trace_entry*> * bt; SrcPos p; // dummy
     for(vector<Py_dict_entry*>::iterator itr = d.begin();
         itr != d.end();itr++){
         ret->u.nd->set_entry(*itr, bt, p);
@@ -1039,7 +1039,7 @@ void Py_dict::del_value(py_val_t value){
     cerr << "never reaches here at " << __FILE__ << ":" << __LINE__; exit(1);
 }
 
-py_val_t Py_dict::set(py_val_t key, py_val_t val, stack<Stack_trace_entry> & bt, const SrcPos & p){
+py_val_t Py_dict::set(py_val_t key, py_val_t val, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p){
     uint hash = Py_val::hash(key);
     vector<Py_dict_entry *> * chain;
     if (this->dict[hash % PY_DICT_TABLE_SIZE] == NULL){ // chain doesn't exist
@@ -1065,7 +1065,7 @@ py_val_t Py_dict::set(py_val_t key, py_val_t val, stack<Stack_trace_entry> & bt,
     return mkint(1);
 }
 
-py_val_t Py_dict::set_entry(Py_dict_entry * entry, stack<Stack_trace_entry> & bt, const SrcPos & p){
+py_val_t Py_dict::set_entry(Py_dict_entry * entry, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p){
     int hash = Py_val::hash(entry->key);
     vector<Py_dict_entry *> * chain;
     if (this->dict[hash % PY_DICT_TABLE_SIZE] == NULL){ // chain doesn't exist
@@ -1091,7 +1091,7 @@ py_val_t Py_dict::set_entry(Py_dict_entry * entry, stack<Stack_trace_entry> & bt
     return mkint(1);
 }
 
-py_val_t Py_dict::get(py_val_t key, stack<Stack_trace_entry> & bt, const SrcPos & p){
+py_val_t Py_dict::get(py_val_t key, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p){
     Py_dict_entry * entry;
     if ((entry = this->get_entry(key)) == NULL){
         stringstream ss;
@@ -1104,7 +1104,7 @@ py_val_t Py_dict::get(py_val_t key, stack<Stack_trace_entry> & bt, const SrcPos 
     return mkint(0);
 }
 
-py_val_t Py_dict::del(py_val_t key, stack<Stack_trace_entry> & bt, const SrcPos & p){
+py_val_t Py_dict::del(py_val_t key, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p){
     int hash = Py_val::hash(key);
     
     vector<Py_dict_entry *> * chain;
@@ -1129,15 +1129,15 @@ py_val_t Py_dict::del(py_val_t key, stack<Stack_trace_entry> & bt, const SrcPos 
     return mkint(0);
 }
 
-py_val_t Py_dict::get_values(stack<Stack_trace_entry> & bt, const SrcPos & p){
+py_val_t Py_dict::get_values(ConsStack<Stack_trace_entry*> * bt, const SrcPos & p){
     return this->pyvalues;
 }
 
-py_val_t Py_dict::get_keys(stack<Stack_trace_entry> & bt, const SrcPos & p){
+py_val_t Py_dict::get_keys(ConsStack<Stack_trace_entry*> * bt, const SrcPos & p){
     return this->pykeys;
 }
 
-py_val_t Py_dict::has_key(py_val_t key, stack<Stack_trace_entry> & bt, const SrcPos & p){
+py_val_t Py_dict::has_key(py_val_t key, ConsStack<Stack_trace_entry*> * bt, const SrcPos & p){
     py_val_t ret;
     if (this->get_entry(key) != NULL){
         ret = mkint(1);

@@ -78,6 +78,9 @@
 
    (:name print :arity nil)
    (:name printstr :arity nil)
+
+   (:name thread_fork :arity nil)
+   (:name thread_join :arity nil)
    ))
 
 (asdf:operate 'asdf:load-op :cl-emb :verbose nil)

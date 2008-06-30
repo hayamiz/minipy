@@ -5,7 +5,7 @@
  * ./vmcodegen.lisp define [output path]
  */
 
-void * dispatchtable[69] = {
+void * dispatchtable[71] = {
 dispatchtable[VM_NOP] = && VM_NOP_CASE,
 dispatchtable[VM_IMMVAL] = && VM_IMMVAL_CASE,
 dispatchtable[VM_IMMVAL_NUM] = && VM_IMMVAL_NUM_CASE,
@@ -75,4 +75,6 @@ dispatchtable[VM_SETITEM] = && VM_SETITEM_CASE,
 dispatchtable[VM_DELITEM] = && VM_DELITEM_CASE,
 dispatchtable[VM_PRINT] = && VM_PRINT_CASE,
 dispatchtable[VM_PRINTSTR] = && VM_PRINTSTR_CASE,
+dispatchtable[VM_THREAD_FORK] = && VM_THREAD_FORK_CASE,
+dispatchtable[VM_THREAD_JOIN] = && VM_THREAD_JOIN_CASE,
 };

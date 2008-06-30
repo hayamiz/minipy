@@ -14,7 +14,7 @@ int main(int argc, char * argv[]){
         tivi.disasm();
         exit(0);
     }
-    tivi.run(0);
+    tivi.run(0, NULL);
 
     return 0;
 }

@@ -60,7 +60,7 @@ void vm_assembler::print(Env & genv){
 
 string vm_assembler::operand_str(vm_insn_type type, py_val_t operand, Env & genv){
     stringstream ss;
-    stack<Stack_trace_entry> bt; SrcPos p; // dummy
+    ConsStack<Stack_trace_entry*> * bt; SrcPos p; // dummy
 
     switch(type){
     case VM_GREF_CALL:

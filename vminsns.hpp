@@ -1,6 +1,10 @@
 #ifndef VMINSNS_HPP
 #define VMINSNS_HPP
 
+class vm_assembler;
+
+#include "vminsns.inc"
+
 #include "pyvalues.hpp"
 #include "symbol.hpp"
 #include "env.hpp"
@@ -8,8 +12,6 @@
 #include <vector>
 
 using namespace std;
-
-#include "vminsns.inc"
 
 struct vm_inst {
     vm_insn_type type;

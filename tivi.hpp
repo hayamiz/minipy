@@ -1,6 +1,8 @@
 #ifndef VM_HPP
 #define VM_HPP
 
+class Tivi;
+
 #include <stack>
 #include "parser.hpp"
 #include "translator.hpp"
@@ -26,14 +28,15 @@ struct tivi_insn {
 class Tivi {
 private:
     Env genv;
-    vm_assembler vmasm;
-    Translator trans;
+    vm_assembler * vmasm;
+    Translator * trans;
 
     int lifetime;
 
     // stack
     py_val_t * machine_stack;
     stack<int> return_stack;
+    bool is_thread;
     
     // set of registers
     int program_counter; // PC
@@ -44,6 +47,7 @@ private:
     vm_insn_type inst; // INST
 
     tivi_insn * insns;
+    int insns_size;
 
     // dictionary of global environment
     py_val_t * globals;
@@ -88,13 +92,20 @@ public:
     Tivi();
     virtual ~Tivi();
 
+    void bootstrap();
+    
     void load_file(const string & filename);
-    void run(int entry_point);
+    void run(int entry_point, ConsStack<Stack_trace_entry*> * bt);
     void presetup();
     
-    void runtime_error(const string & msg, stack<Stack_trace_entry> & bt, int program_counter);
+    void runtime_error(const string & msg, ConsStack<Stack_trace_entry*> * bt, int program_counter);
 
     void disasm();
+    tivi_insn * get_insns();
+    static Tivi * fork(Tivi * parent);
+
+    static void * thread_nfun_dispatch(void * a);
+    static void * thread_vfun_dispatch(void * a);
 };
 
 #endif

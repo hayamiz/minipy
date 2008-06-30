@@ -1,7 +1,5 @@
 
-OBJ_FILES = char_stream.o tokenizer.o parser.o syntax_tree.o symbol.o eval.o env.o pyvalues.o native.o debug.o
-
-VMOBJ_FILES = char_stream.o tokenizer.o parser.o syntax_tree.o symbol.o env.o pyvalues.o native.o debug.o
+OBJ_FILES = char_stream.o tokenizer.o parser.o syntax_tree.o symbol.o env.o pyvalues.o native.o debug.o tivi.o vminsns.o translator.o printer.o eval.o
 
 TEST_OBJ_FILES = tests/testRunner.o
 
@@ -11,7 +9,7 @@ LIBS = -lpthread
 CPP_FLAGS = -g -Wall -fno-default-inline
 # CPP_FLAGS = -Wall -O3 -g -DRELEASE_BUILD
 
-all:
+all: vminsns.inc bootstrap.inc
 	make minipy
 	make vmpy
 
@@ -19,14 +17,14 @@ minipy: ${OBJ_FILES} minipy.o
 	g++ ${CPP_FLAGS} ${OBJ_FILES} minipy.o -o minipy ${LIBS}
 	@echo "Compile \(^O^)/ OK"
 
-# bootstrap.inc : etc/gen_bootstrap.rb
-# 	./etc/gen_bootstrap.rb > bootstrap.inc
+bootstrap.inc : etc/gen_bootstrap.rb
+	./etc/gen_bootstrap.rb > bootstrap.inc
 
 minipy.o : minipy.cpp minipy.hpp bootstrap.inc
 	g++ ${CPP_FLAGS} -c $<
 
-vmpy : ${VMOBJ_FILES} vminsns.o translator.o printer.o tivi.o vmpy.o 
-	g++ ${CPP_FLAGS} -o vmpy ${LIBS} ${VMOBJ_FILES} vmpy.o printer.o vminsns.o translator.o tivi.o
+vmpy : ${OBJ_FILES} vmpy.o 
+	g++ ${CPP_FLAGS} -o vmpy ${LIBS} ${OBJ_FILES} vmpy.o
 
 dispatchtable.inc : etc/vmcodegen.lisp
 	./etc/vmcodegen.lisp dispatchtable 2> /dev/null 1> dispatchtable.inc
@@ -50,15 +48,15 @@ tivi.o : tivi.cpp tivi.hpp translator.o bootstrap.inc dispatchtable.inc
 	g++ ${CPP_FLAGS} -c $<
 
 clean :
-	rm *.o *.cpp~ *.hpp~ minipy vmpy # minipy vmpy test_tokenizer test_parser
+	rm *.o *.cpp~ *.hpp~ *.inc *.inc~ minipy vmpy # minipy vmpy test_tokenizer test_parser
 
 test :
 	make tokenizer
 	make parser
 	make test_run
 
-test_parser: test_parser.cpp test_parser.hpp ${OBJ_FILES} printer.o
-	g++ ${CPP_FLAGS} test_parser.cpp ${OBJ_FILES} printer.o -o test_parser ${LIBS}
+test_parser: test_parser.cpp test_parser.hpp ${OBJ_FILES}
+	g++ ${CPP_FLAGS} test_parser.cpp ${OBJ_FILES} -o test_parser ${LIBS}
 
 test_tokenizer: test_tokenizer.cpp test_tokenizer.hpp ${OBJ_FILES}
 	g++ ${CPP_FLAGS} test_tokenizer.cpp ${OBJ_FILES} -o test_tokenizer ${LIBS}
