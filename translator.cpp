@@ -417,6 +417,7 @@ void Translator::insns_val(const Expr & expr, vm_assembler & vmasm, LocalEnv * l
             } else if (func == Symbol::get("thread_join")){
                 this->insns_val(*expr.u.call->args[0], vmasm, lenv);
                 vmasm.THREAD_JOIN(expr.pos);
+                break;
             }
         }
         

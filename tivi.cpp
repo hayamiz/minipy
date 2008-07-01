@@ -152,7 +152,7 @@ void Tivi::run(int entry_point, ConsStack<Stack_trace_entry*> * bt){
 #define CASE(var) var##_CASE:
 #define BREAK
 
-#define TIVI_NEXTI() (PC++); TIVI_NEXT()
+#define TIVI_NEXTI() (PC++) ; TIVI_NEXT()
 #define TIVI_NEXT() goto main_loop
 
 #include "dispatchtable.inc"
@@ -179,6 +179,9 @@ void Tivi::run(int entry_point, ConsStack<Stack_trace_entry*> * bt){
 
 main_loop:
     if (PC >= pc_limit) {
+        if (this->is_thread){
+            cerr << "[thread exited by PC limit]" << endl;
+        }
         return;
     }
 
@@ -710,7 +713,7 @@ main_loop:
             if ((f = TIVI_GREF(TIVI_FETCH_OPERAND())) == py_val_not_found){
                 runtime_error("no such function ", bt, PC);
             }
-            bt = CONS_STACK(new Stack_trace_entry(*(symbol_t)vmasm->insns[PC].operand
+            bt = CONS_STACK(new Stack_trace_entry(*genv_rev[(int)this->insns[PC].operand]
                                       , TIVI_FETCH_SRCPOS())
                             , bt);
         } else if (INST == VM_VREF_CALL){
@@ -790,6 +793,7 @@ main_loop:
         // no operand
         if (this->return_stack.size() == 0){
             if (this->is_thread){
+                cerr << "[Success: thread exited by VM_RET]" << endl;
                 return;
             } else {
                 runtime_error("no place to return", bt, PC);
@@ -1003,12 +1007,25 @@ main_loop:
                 runtime_error("thread error: cannot create thread", bt, PC);
             }
         }
+
+        VAL = thread;
         TIVI_NEXTI();
     }
     CASE(VM_THREAD_JOIN){
 
         a[0] = VAL;
-        pthread_join(a[0]->u.th->th, NULL);
+        if(!Py_val::is_thread(a[0])){
+            runtime_error("thread_join: invalid argument", bt, PC);
+        }
+
+        PTH_ASSERT(pthread_join(a[0]->u.th->th, NULL));
+
+//         PTH_ASSERT(pthread_mutex_lock(&(a[0]->u.th->join_mutex)));
+//         while(!a[0]->u.th->joined){
+//             PTH_ASSERT(pthread_cond_wait(&(a[0]->u.th->join_cond)
+//                                          , &(a[0]->u.th->join_mutex)));
+//         }
+//         PTH_ASSERT(pthread_mutex_unlock(&(a[0]->u.th->join_mutex)));
 
         TIVI_NEXTI();
     }
@@ -1042,14 +1059,12 @@ void * Tivi::thread_nfun_dispatch(void * a){
               , *args->pos, args->args);
     
     delete(args);
-
-    return 0;
 }
 
 void * Tivi::thread_vfun_dispatch(void * a){
 
     Py_thread_args * args = static_cast<Py_thread_args*>(a);
-
+    
     Tivi * vm = Tivi::fork(static_cast<Tivi*>(args->parent));
 
     vm->is_thread = true;
@@ -1073,7 +1088,13 @@ void * Tivi::thread_vfun_dispatch(void * a){
 
     vm->run(args->th->func->u.vm_i->addr, args->strace);
 
+
+    PTH_ASSERT(pthread_mutex_lock(&args->th->join_mutex));
+    args->th->joined = true;
+    PTH_ASSERT(pthread_cond_signal(&args->th->join_cond));
+    PTH_ASSERT(pthread_mutex_unlock(&args->th->join_mutex));
+
     delete(args);
 
-    return 0;
+    return NULL;
 }

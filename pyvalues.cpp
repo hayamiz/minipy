@@ -645,6 +645,11 @@ bool Py_val::is_number(py_val_t pyval){
     return Py_val::is_int(pyval) || Py_val::is_float(pyval);
 }
 
+bool Py_val::is_thread(py_val_t pyval){
+    return is_boxed(pyval) && pyval->type == py_type_thread;
+}
+
+
 /* Py_va_tから値を取り出す関数 */
 int Py_val::get_int(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const SrcPos & pos){
     if (!Py_val::is_int(pyval)) {
@@ -1193,8 +1198,16 @@ unsigned int Py_tuple::size(){
 
 Py_thread::Py_thread(py_val_t func){
     this->func = func;
+    this->joined = false;
+    pthread_mutex_t mt = PTHREAD_MUTEX_INITIALIZER;
+    this->join_mutex = mt;
+    pthread_cond_t cnd = PTHREAD_COND_INITIALIZER;
+    this->join_cond = cnd;
+
+    PTH_ASSERT(pthread_mutex_init(&this->join_mutex, NULL));
+    PTH_ASSERT(pthread_cond_init(&this->join_cond, NULL));
 }
 
 Py_thread::~Py_thread(){
-
+    
 }

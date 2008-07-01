@@ -1,12 +1,15 @@
 
-def th_print(arg):
-  while 1:
-    if arg == "b":
-      print(arg)
+x = 0
 
-th_a = start_new_thread(th_print, ("a",))
-th_b = start_new_thread(th_print, ("b",))
+def job():
+  global x
+  for i in range(0,100000):
+    x = x + 1
+
+th_a = start_new_thread(print_string, ("hoge",))
+th_b = start_new_thread(print_string, ("fuga",))
 
 thread_join(th_a)
 thread_join(th_b)
 
+print x

@@ -4,9 +4,11 @@
 class Tivi;
 
 #include <stack>
+#include <errno.h>
 #include "parser.hpp"
 #include "translator.hpp"
 #include "native.hpp"
+#include "thread.hpp"
 
 using namespace std;
 

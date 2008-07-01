@@ -14,6 +14,7 @@
 #include "tokenizer.hpp"
 #include "parser.hpp"
 #include "symbol.hpp"
+#include "thread.hpp"
 
 class Py_val;
 class Py_ifun;
@@ -91,6 +92,8 @@ typedef enum{
     py_type_newdict,		/* 辞書 */
     py_type_newtuple,
     py_type_thread,
+    py_type_mutex,
+    py_type_cond,
 } py_type_t;
 
 
@@ -171,6 +174,7 @@ public:
     static bool is_newtuple(py_val_t pyval);
     // static bool is_boxed(py_val_t pyval);
     static bool is_number(py_val_t pyval); // is int or float
+    static bool is_thread(py_val_t pyval);
 
     /* 型チェックをし、Py_val_tから値を取り出す.
       runtimeエラーを出すのもここです。
@@ -352,6 +356,10 @@ class Py_thread {
 public:
     pthread_t th;
     py_val_t func;
+
+    bool joined;
+    pthread_mutex_t join_mutex;
+    pthread_cond_t join_cond;
     
     Py_thread(py_val_t func);
     ~Py_thread();
@@ -365,5 +373,11 @@ public:
     py_val_t * args; // array of py_val_t
     void * parent; // Tivi
 };
+
+class Py_mutex {
+public:
+    pthread_mutex_t mutex;
+    
+}
 
 #endif

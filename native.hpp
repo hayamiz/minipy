@@ -10,9 +10,6 @@
 #include "env.hpp"
 #include "tivi.hpp"
 
-// experimental multithread implementation
-#include <pthread.h>
-
 namespace native{
     /* 値が特定の型であるかを判定する関数群 */
     py_val_t is_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
@@ -248,12 +245,6 @@ namespace native{
                    py_val_t * a);
 
     // experimental multithread implementation
-    py_val_t thread_start(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
-                          py_val_t * a);
-    py_val_t thread_join(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
-                         py_val_t * a);
-    void * thread_nfun_dispatch(void * a);
-    void * thread_vfun_dispatch(void * a);
 }
 
 #endif
