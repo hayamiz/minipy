@@ -583,6 +583,9 @@ void Py_val::print(py_val_t pyval, ConsStack<Stack_trace_entry*> * bt, const Src
                , pyval->u.n->name->c_str()
                , (uint)pyval->u.n->f);
         break;
+    case py_type_thread:
+        printf("<thread>");
+        break;
     default:
         cerr << "never reaches here at " << __FILE__ << ":" << __LINE__; exit(1);
     }
@@ -647,6 +650,18 @@ bool Py_val::is_number(py_val_t pyval){
 
 bool Py_val::is_thread(py_val_t pyval){
     return is_boxed(pyval) && pyval->type == py_type_thread;
+}
+
+bool Py_val::is_mutex(py_val_t pyval){
+    return is_boxed(pyval) && pyval->type == py_type_mutex;
+}
+
+bool Py_val::is_cond(py_val_t pyval){
+    return is_boxed(pyval) && pyval->type == py_type_cond;
+}
+
+bool Py_val::is_sockaddr(py_val_t pyval){
+    return is_boxed(pyval) && pyval->type == py_type_sockaddr;
 }
 
 
@@ -978,6 +993,40 @@ py_val_t Py_val::mk_thread(py_val_t func){
 }
 
 
+py_val_t Py_val::mk_mutex(){
+    py_val_t ret;
+
+    ret = Py_val::alloc_boxed(py_type_mutex);
+    Py_mutex * mutex = new Py_mutex();
+    ret->u.mutex = mutex;
+
+    return ret;
+}
+
+
+py_val_t Py_val::mk_cond(py_val_t mutex){
+    py_val_t ret;
+
+    ret = Py_val::alloc_boxed(py_type_cond);
+    Py_cond * cond = new Py_cond(mutex);
+    ret->u.cond = cond;
+    
+    return ret;
+}
+
+py_val_t Py_val::mk_sockaddr(py_val_t port){
+    py_val_t ret;
+
+    ret = Py_val::alloc_boxed(py_type_sockaddr);
+    ret->u.addr = new sockaddr_in();
+    ret->u.addr->sin_family = AF_INET;
+    ret->u.addr->sin_addr.s_addr = htonl(INADDR_ANY);
+    ret->u.addr->sin_port = htons(getint(port));
+    
+    return ret;
+}
+
+
 /*
  * 辞書式!
  */
@@ -1199,10 +1248,11 @@ unsigned int Py_tuple::size(){
 Py_thread::Py_thread(py_val_t func){
     this->func = func;
     this->joined = false;
-    pthread_mutex_t mt = PTHREAD_MUTEX_INITIALIZER;
-    this->join_mutex = mt;
-    pthread_cond_t cnd = PTHREAD_COND_INITIALIZER;
-    this->join_cond = cnd;
+
+    // pthread_mutex_t mt = PTHREAD_MUTEX_INITIALIZER;
+//     this->join_mutex = mt;
+//     pthread_cond_t cnd = PTHREAD_COND_INITIALIZER;
+//     this->join_cond = cnd;
 
     PTH_ASSERT(pthread_mutex_init(&this->join_mutex, NULL));
     PTH_ASSERT(pthread_cond_init(&this->join_cond, NULL));
@@ -1210,4 +1260,13 @@ Py_thread::Py_thread(py_val_t func){
 
 Py_thread::~Py_thread(){
     
+}
+
+Py_mutex::Py_mutex(){
+    pthread_mutex_init(&this->mutex, NULL);
+}
+
+Py_cond::Py_cond(py_val_t mutex){
+    this->py_mutex = mutex;
+    pthread_cond_init(&this->cond, NULL);
 }

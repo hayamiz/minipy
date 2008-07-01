@@ -10,6 +10,14 @@
 #include "env.hpp"
 #include "tivi.hpp"
 
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
+#define DEFINE_PY_FUNC(funcname)                                \
+    py_val_t funcname(ConsStack<Stack_trace_entry*> * bt        \
+                      ,const SrcPos & p,                        \
+                      py_val_t * a)
+
 namespace native{
     /* 値が特定の型であるかを判定する関数群 */
     py_val_t is_int(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
@@ -245,6 +253,37 @@ namespace native{
                    py_val_t * a);
 
     // experimental multithread implementation
+    py_val_t mutex(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                   py_val_t * a);
+    py_val_t lock(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                  py_val_t * a);
+    py_val_t unlock(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                    py_val_t * a);
+
+    py_val_t condition(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                  py_val_t * a);
+    py_val_t acquire(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                  py_val_t * a);
+    py_val_t release(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                  py_val_t * a);
+    py_val_t wait(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                  py_val_t * a);
+    py_val_t notify(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                    py_val_t * a);
+    py_val_t notifyAll(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                       py_val_t * a);
+    DEFINE_PY_FUNC(get_rawaddr);
+
+    // networking
+    DEFINE_PY_FUNC(make_sockaddr);
+
+    DEFINE_PY_FUNC(py_socket);
+    DEFINE_PY_FUNC(py_bind);
+    DEFINE_PY_FUNC(py_listen);
+    DEFINE_PY_FUNC(py_accept);
+    DEFINE_PY_FUNC(py_recv);
+    DEFINE_PY_FUNC(py_send);
+    DEFINE_PY_FUNC(py_close);
 }
 
 #endif

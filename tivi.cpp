@@ -711,7 +711,7 @@ main_loop:
 
         if (INST == VM_GREF_CALL){
             if ((f = TIVI_GREF(TIVI_FETCH_OPERAND())) == py_val_not_found){
-                runtime_error("no such function ", bt, PC);
+                runtime_error("no such function " + *genv_rev[(int)TIVI_FETCH_OPERAND()], bt, PC);
             }
             bt = CONS_STACK(new Stack_trace_entry(*genv_rev[(int)this->insns[PC].operand]
                                       , TIVI_FETCH_SRCPOS())
@@ -1059,6 +1059,8 @@ void * Tivi::thread_nfun_dispatch(void * a){
               , *args->pos, args->args);
     
     delete(args);
+
+    return NULL;
 }
 
 void * Tivi::thread_vfun_dispatch(void * a){

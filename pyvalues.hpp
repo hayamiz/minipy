@@ -16,6 +16,9 @@
 #include "symbol.hpp"
 #include "thread.hpp"
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+
 class Py_val;
 class Py_ifun;
 class Py_nfun;
@@ -26,6 +29,8 @@ class Py_dict;
 class Env;
 class Py_tuple;
 class Py_thread;
+class Py_mutex;
+class Py_cond;
 
 /* stack trace */
 class Stack_trace_entry{
@@ -94,6 +99,7 @@ typedef enum{
     py_type_thread,
     py_type_mutex,
     py_type_cond,
+    py_type_sockaddr,
 } py_type_t;
 
 
@@ -156,6 +162,9 @@ public:
         Py_dict * nd;	/* dict */
         Py_tuple * nl;  /* tuple or list(in the future) */
         Py_thread * th;
+        Py_mutex * mutex;
+        Py_cond * cond;
+        sockaddr_in * addr;
     } u;
 
     /* それぞれpが整数，文字か，浮動小数点なら1 */
@@ -175,6 +184,9 @@ public:
     // static bool is_boxed(py_val_t pyval);
     static bool is_number(py_val_t pyval); // is int or float
     static bool is_thread(py_val_t pyval);
+    static bool is_mutex(py_val_t pyval);
+    static bool is_cond(py_val_t pyval);
+    static bool is_sockaddr(py_val_t pyval);
 
     /* 型チェックをし、Py_val_tから値を取り出す.
       runtimeエラーを出すのもここです。
@@ -218,6 +230,10 @@ public:
     static py_val_t mk_none();
     
     static py_val_t mk_thread(py_val_t func);
+    static py_val_t mk_mutex();
+    static py_val_t mk_cond(py_val_t mutex);
+
+    static py_val_t mk_sockaddr(py_val_t port);
 
 #define mkint(var) Py_val::mk_int(var)
 #define mkchar(var) Py_val::mk_char(var)
@@ -377,7 +393,15 @@ public:
 class Py_mutex {
 public:
     pthread_mutex_t mutex;
-    
-}
 
+    Py_mutex();
+};
+
+class Py_cond {
+public:
+    pthread_cond_t cond;
+    py_val_t py_mutex;
+
+    Py_cond(py_val_t mutex);
+};
 #endif

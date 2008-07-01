@@ -1511,3 +1511,199 @@ py_val_t native::sys_sleep(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
 
     return ret;
 }
+
+py_val_t native::mutex(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                   py_val_t * a){
+    return Py_val::mk_mutex();
+}
+
+py_val_t native::lock(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                   py_val_t * a){
+    if(!Py_val::is_mutex(a[0])){
+        runtime_error(bt, p, "type error : lock() requires mutex.");
+    }
+
+    PTH_ASSERT(pthread_mutex_lock(&a[0]->u.mutex->mutex));
+
+    return Py_val::mk_none();
+}
+
+py_val_t native::unlock(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                   py_val_t * a){
+    if(!Py_val::is_mutex(a[0])){
+        runtime_error(bt, p, "type error : unlock() requires mutex.");
+    }
+
+    PTH_ASSERT(pthread_mutex_unlock(&a[0]->u.mutex->mutex));
+
+    return Py_val::mk_none();
+}
+
+py_val_t native::condition(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                           py_val_t * a){
+    
+    if (!Py_val::is_mutex(a[0])){
+        runtime_error(bt, p, "type error : condition() requires mutex.");
+    }
+
+    return Py_val::mk_cond(a[0]);
+}
+
+py_val_t native::acquire(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                  py_val_t * a){
+    if(!Py_val::is_cond(a[0])){
+        runtime_error(bt, p, "type error : acquire() requires condition value.");
+    }
+
+    PTH_ASSERT(pthread_mutex_lock(&a[0]->u.cond->py_mutex->u.mutex->mutex));
+
+    return Py_val::mk_none();
+}
+
+py_val_t native::release(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                  py_val_t * a){
+    if(!Py_val::is_cond(a[0])){
+        runtime_error(bt, p, "type error : release() requires condition value.");
+    }
+
+    PTH_ASSERT(pthread_mutex_unlock(&a[0]->u.cond->py_mutex->u.mutex->mutex));
+
+    return Py_val::mk_none();
+}
+
+py_val_t native::wait(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                  py_val_t * a){
+
+    if(!(Py_val::is_cond(a[0]))){
+        runtime_error(bt, p, "type error : wait() requires condition value and mutex.");
+    }
+
+    PTH_ASSERT(pthread_cond_wait(&a[0]->u.cond->cond
+                                 , &a[0]->u.cond->py_mutex->u.mutex->mutex));
+    
+    return Py_val::mk_none();
+}
+
+py_val_t native::notify(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                  py_val_t * a){
+    if(!(Py_val::is_cond(a[0]))){
+        runtime_error(bt, p, "type error : notify() requires condiiton value.");
+    }
+
+    PTH_ASSERT(pthread_cond_signal(&a[0]->u.cond->cond));
+
+    return Py_val::mk_none();
+}
+
+py_val_t native::notifyAll(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                  py_val_t * a){
+    if(!(Py_val::is_cond(a[0]))){
+        runtime_error(bt, p, "type error : notifyAll() requires condition value.");
+    }
+
+    PTH_ASSERT(pthread_cond_broadcast(&a[0]->u.cond->cond));
+
+    return Py_val::mk_none();
+}
+
+py_val_t native::make_sockaddr(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                  py_val_t * a){
+    if (!Py_val::is_int(a[0])){
+        runtime_error(bt, p, "type error : make_sockaddr() requires integer as port number.");
+    }
+    return Py_val::mk_sockaddr(a[0]);
+}
+
+py_val_t native::py_socket(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                  py_val_t * a){
+    int fd = socket(AF_INET, SOCK_STREAM, 0);
+    
+    return Py_val::mk_int(fd);
+}
+
+py_val_t native::py_bind(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                      py_val_t * a){
+    if (!Py_val::is_int(a[0])){
+        runtime_error(bt, p, "type error : bind() requires integer as socket.");
+    }
+    if (!Py_val::is_sockaddr(a[1])){
+        runtime_error(bt, p, "type error : bind() requires sockaddr.");
+    }
+
+    int ret = bind(getint(a[0]), (struct sockaddr *)a[1]->u.addr
+                   ,sizeof(*a[1]->u.addr));
+    return Py_val::mk_int(ret);
+}
+
+py_val_t native::py_listen(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                      py_val_t * a){
+    if (!Py_val::is_int(a[0])){
+        runtime_error(bt, p, "type error : listen() requires integer as socket.");
+    }
+
+    int ret = listen(getint(a[0]), 64);
+    return Py_val::mk_int(ret);
+}
+
+py_val_t native::py_accept(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                        py_val_t * a){
+    if (!Py_val::is_int(a[0])){
+        runtime_error(bt, p, "type error : accept() requires integer as socket.");
+    }
+    if (!Py_val::is_sockaddr(a[1])){
+        runtime_error(bt, p, "type error : accept() requires sockaddr.");
+    }
+
+    socklen_t socklen;
+    int conn_fd = accept(getint(a[0])
+                         , (struct sockaddr *)a[1]->u.addr
+                         , &socklen);
+
+    return Py_val::mk_int(conn_fd);
+}
+
+py_val_t native::py_recv(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                      py_val_t * a){
+    if (!Py_val::is_int(a[0])){
+        runtime_error(bt, p, "type error : recv() requires integer as connection file discriptor.");
+    }
+    
+    char buf[4096];
+    int len = recv(getint(a[0]), buf, 4096, 0);
+
+    if (len < 0){
+        runtime_error(bt, p, "recv error");
+        exit(1);
+    }
+
+    string str(buf);
+    return Py_val::mk_string(str);
+}
+
+py_val_t native::py_send(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                      py_val_t * a){
+    if (!Py_val::is_int(a[0])){
+        runtime_error(bt, p, "type error : send() requires integer as connection file discriptor.");
+    }
+    if (!Py_val::is_string(a[1])){
+        runtime_error(bt, p, "type error : send() requires string.");
+    }
+
+    return Py_val::mk_int(send(getint(a[0]), a[1]->u.s->c_str(), a[1]->u.s->length(), 0));
+}
+
+py_val_t native::py_close(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                      py_val_t * a){
+    if (!Py_val::is_int(a[0])){
+        runtime_error(bt, p, "type error : close() requires integer as connection file discriptor.");
+    }
+
+    return Py_val::mk_int(close(getint(a[0])));
+}
+
+py_val_t native::get_rawaddr(ConsStack<Stack_trace_entry*> * bt,const SrcPos & p,
+                             py_val_t * a){
+    return Py_val::mk_int((int) a[0]);
+}
+
+
