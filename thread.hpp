@@ -1,6 +1,8 @@
 #ifndef THREAD_HPP
 #define THREAD_HPP
 
+#include <string.h>
+
 #define LOG_UNLOCKED(...) {\
     const int thread_id = static_cast<int>(pthread_self());             \
     fprintf(stderr, "%08x %s:%d: ", thread_id, __FILE__, __LINE__);     \
